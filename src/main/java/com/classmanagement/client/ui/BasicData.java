@@ -120,7 +120,6 @@ public class BasicData extends JFrame implements ActionListener {
         this.setIconImage(win.getImage());
         this.setVisible(true);
 
-//        addPortrait.add
         confirmButton.addActionListener(this);
         cancelButton.addActionListener(this);
     }

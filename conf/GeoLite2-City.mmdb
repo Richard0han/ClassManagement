@@ -1,0 +1,5 @@
+<dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>geolite2-databases</artifactId>
+            <version>20180911</version>
+</dependency>

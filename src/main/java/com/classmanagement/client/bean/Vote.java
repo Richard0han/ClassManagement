@@ -16,9 +16,36 @@ public class Vote {
     private int oppose;
     private int forumId;
     private String suggestion;
+    private String stuNo;
+    private int status;
+    private int option;
+
+    public int getOption() {
+        return option;
+    }
+
+    public void setOption(int option) {
+        this.option = option;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public int getId() {
         return id;
+    }
+
+    public String getStuNo() {
+        return stuNo;
+    }
+
+    public void setStuNo(String stuNo) {
+        this.stuNo = stuNo;
     }
 
     public void setId(int id) {

@@ -51,10 +51,5 @@
             <version>1.2.51</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.elasticsearch/geolite2-databases -->
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>geolite2-databases</artifactId>
-            <version>20180911</version>
-        </dependency>
     </dependencies>
 </project>

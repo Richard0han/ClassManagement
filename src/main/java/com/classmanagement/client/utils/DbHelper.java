@@ -28,15 +28,21 @@ public class DbHelper {
     }
 
     public static Connection getConnection() throws Exception {
-        Connection conn =  DriverManager.getConnection(url, username, password);
+        Connection conn = DriverManager.getConnection(url, username, password);
         return conn;
     }
 
     public static void close(PreparedStatement preparedStatement, Connection connection, ResultSet resultSet) {
         try {
-            preparedStatement.close();
-            connection.close();
-            resultSet.close();
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
