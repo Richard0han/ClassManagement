@@ -11,10 +11,10 @@ import java.sql.*;
  */
 
 public class DbHelper {
-    private static final String ip = "localhost";
+    private static final String ip = "120.77.150.166";
     private static final String driver = "com.mysql.cj.jdbc.Driver";
     private static final String url = "jdbc:mysql://" + ip + ":3306/class_management" +
-            "?useUnicode=true&&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false";
+            "?useUnicode=true&&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&user=root&password=[a1331110]&serverTimezone=UTC&characterEncoding=UTF-8&useSSL=true";
     private static final String username = "root";
     private static final String password = "root";
     private static Connection con = null;

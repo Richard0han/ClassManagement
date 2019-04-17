@@ -74,7 +74,7 @@ public class AddData {
     public static boolean addVote(Vote vote) {
         try {
             Connection connection = DbHelper.getConnection();
-            String sql1 = "insert into vote (title,content,support,oppose,forum_id) values(?,?,?,?,?)";
+            String sql1 = "insert into vote (title,content,support,oppose,forum_id,suggestion) values(?,?,?,?,?,?)";
             String sql2 = "select last_insert_id();";
             PreparedStatement preparedStatement = connection.prepareStatement(sql1);
             preparedStatement.setString(1, vote.getTitle());
@@ -82,6 +82,7 @@ public class AddData {
             preparedStatement.setInt(3, 0);
             preparedStatement.setInt(4, 0);
             preparedStatement.setInt(5, vote.getForumId());
+            preparedStatement.setString(6,"");
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.executeQuery(sql2);
             if (resultSet.next()) {

@@ -156,7 +156,7 @@ public class BasicData extends JFrame implements ActionListener {
                 user.setPortrait(setPortrait.getSelectedIndex());
                 if (AddData.addUser(user)) {
                     JOptionPane.showMessageDialog(this, "注册成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
-                    MainPanel mainPanel = new MainPanel(user);
+                    MainUI mainUI = new MainUI(user);
                     this.dispose();
                 }
             }

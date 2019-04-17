@@ -16,7 +16,6 @@ import java.sql.Statement;
 
 public class IsFirstLogin {
     public static boolean isFirstLogin(String stuNo) {
-
         Connection connection = null;
         ResultSet resultSet = null;
         Statement stmt = null;

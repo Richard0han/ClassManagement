@@ -128,7 +128,7 @@ public class GetData {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ResultSet rs = null;
-        Vote vote = new Vote();
+        Vote vote = null;
         int classId = user.getClassId();
         String stuNo = user.getStuNo();
         try {
@@ -136,14 +136,15 @@ public class GetData {
             String sql = "select * from vote_history where class_id=" + classId + " and stu_no=" + stuNo;
             preparedStatement = connection.prepareStatement(sql);
             resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
+            while (resultSet.next()) {
+                vote = new Vote();
                 vote.setId(resultSet.getInt("vote_id"));
                 vote.setOption(resultSet.getInt("option"));
                 vote.setStatus(resultSet.getInt("status"));
                 String sql0 = "select * from vote where id=" + vote.getId();
                 preparedStatement = connection.prepareStatement(sql0);
                 rs = preparedStatement.executeQuery();
-                if(rs.next()){
+                if (rs.next()) {
                     vote.setTitle(rs.getString("title"));
                     vote.setContent(rs.getString("content"));
                     vote.setSuggestion(rs.getString("suggestion"));
@@ -160,8 +161,8 @@ public class GetData {
             Collections.reverse(list);
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            DbHelper.close(preparedStatement,connection,resultSet);
+        } finally {
+            DbHelper.close(preparedStatement, connection, resultSet);
         }
         return list;
     }

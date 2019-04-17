@@ -3,7 +3,6 @@ package com.classmanagement.client.ui;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.bean.Vote;
-import com.classmanagement.client.dao.AddData;
 import com.classmanagement.client.dao.GetData;
 import com.classmanagement.client.dao.UpdateData;
 import com.classmanagement.client.utils.GetWeather;
@@ -26,7 +25,7 @@ import java.util.List;
  * @date 2019.03
  */
 
-public class MainPanel extends JFrame implements ActionListener {
+public class MainUI extends JFrame implements ActionListener {
     private User user;
     private ImageIcon background = new ImageIcon("images\\mainPanel.png");
     private JLabel backPic = new JLabel(background);
@@ -44,13 +43,16 @@ public class MainPanel extends JFrame implements ActionListener {
     private List<Forum> forumList;
     private List<User> classmateList;
     private List<Vote> voteList;
+    private JButton supportButton;
+    private JButton opposeButton;
+    JTextArea suggestionText = new JTextArea();
+    private int votePage = 0;
+    private int annPage = 0;
     private Button testButton = new Button("测试");
     private String functionPage = "聊天";
     private String chatPage = "0";
-    private JButton supportButton;
-    private JButton opposeButton;
 
-    public MainPanel(User user) {
+    public MainUI(User user) {
         super("微校");
 
         backPic.setBounds(0, 0, 450, 920);
@@ -60,8 +62,7 @@ public class MainPanel extends JFrame implements ActionListener {
 
         this.user = user;
         ImageIcon portrait = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
-        portrait.setImage(portrait.getImage().getScaledInstance(100, 100,
-                Image.SCALE_SMOOTH));
+        portrait.setImage(portrait.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
         portraitLabel = new JLabel(portrait);
         nicknameLabel = new JLabel(user.getNickname());
         signatureLabel = new JLabel(user.getSignature());
@@ -127,6 +128,13 @@ public class MainPanel extends JFrame implements ActionListener {
         return jButton;
     }
 
+    /**
+     * description setWeatherPic
+     *
+     * @param weatherPicLabel
+     * @param weather
+     * @return javax.swing.JLabel
+     */
     private JLabel setWeatherPic(JLabel weatherPicLabel, String weather) {
         String pic;
         Boolean cloudy = (weather.contains("多云") && weather.contains("阴")) || (weather.equals("阴")) || (weather.equals("多云"));
@@ -200,7 +208,7 @@ public class MainPanel extends JFrame implements ActionListener {
         chatPanel.add(chatTwo, "2");
         chatCard.show(chatPanel, "0");
         functionPanel.setBackground(Color.WHITE);
-        setVotePanel(0);
+        setVotePanel();
         functionPanel.add(announcementPanel, "公告");
         functionPanel.add(votePanel, "投票");
         functionCard.show(functionPanel, functionPage);
@@ -350,16 +358,15 @@ public class MainPanel extends JFrame implements ActionListener {
         };
     }
 
-    private int setVotePanel(int order) {
+    private int setVotePanel() {
         voteList = GetData.getVote(user);
         int voteSize = voteList.size();
-
         if (voteSize == 0) {
             JLabel notFind = new JLabel(new ImageIcon("images\\noVote.png"));
             notFind.setBounds(85, 180, 280, 285);
             votePanel.add(notFind);
         } else {
-            Vote vote = voteList.get(order);
+            Vote vote = voteList.get(votePage);
             Font titleFont = new Font("黑体", 1, 25);
             JLabel titleLabel;
             titleLabel = new JLabel(vote.getTitle(), JLabel.CENTER);
@@ -368,22 +375,36 @@ public class MainPanel extends JFrame implements ActionListener {
 
             supportButton = new JButton("<html><p id=" + vote.getId() + ">赞成 " + vote.getSupport() + "</p></html>");
             opposeButton = new JButton("<html><p id=" + vote.getId() + ">反对 " + vote.getOppose() + "</p></html>");
-            supportButton.setBackground(Color.WHITE);
-            opposeButton.setBackground(Color.WHITE);
-            supportButton.setFont(new Font("黑体", 1, 18));
-            opposeButton.setFont(new Font("黑体", 1, 18));
-            supportButton.setBounds(80, 300, 100, 40);
-            opposeButton.setBounds(250, 300, 100, 40);
             if (vote.getStatus() == 1) {
                 supportButton.setEnabled(false);
                 opposeButton.setEnabled(false);
             }
-            supportButton.addActionListener(voteActionListener());
-            opposeButton.addActionListener(voteActionListener());
+            setVoteButton();
+
+            JButton lastButton = setPageButton(0, "上一页", voteSize);
+            JButton nextButton = setPageButton(0, "下一页", voteSize);
+            lastButton.setLocation(50, 600);
+            nextButton.setLocation(280, 600);
+
+            JLabel indexLabel = new JLabel((votePage + 1) + "/" + voteSize);
+            indexLabel.setFont(new Font("黑体", 0, 15));
+            indexLabel.setBounds(210, 600, 80, 40);
 
             Font contentFont = new Font("黑体", 1, 20);
+            suggestionText.setFont(contentFont);
+            suggestionText.setLineWrap(true);
+            JScrollPane scrollPane = new JScrollPane(suggestionText);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setBounds(25, 400, 300, 150);
+            JButton addSuggestion = new JButton("<html><p id=" + vote.getId() + ">提</p><p>交</p><p>建</p><p>议</p></html>");
+            addSuggestion.setFont(new Font("宋体",1,20));
+            addSuggestion.setBounds(345, 400, 80, 150);
+            addSuggestion.setBackground(Color.WHITE);
+            addSuggestion.addActionListener(setSuggestionListener());
+
             JTextArea textArea = new JTextArea();
-            textArea.setText("投票内容：\n" + vote.getContent() + "\n\n建议：\n" + vote.getSuggestion());
+            textArea.setText("投票内容：\n" + vote.getContent() + "\n\n建议：" + vote.getSuggestion());
             textArea.setFont(contentFont);
             textArea.setForeground(Color.LIGHT_GRAY);
             textArea.setLineWrap(true);
@@ -395,6 +416,11 @@ public class MainPanel extends JFrame implements ActionListener {
             jScrollPane.setBounds(0, 50, 450, 220);
             votePanel.add(supportButton);
             votePanel.add(opposeButton);
+            votePanel.add(lastButton);
+            votePanel.add(nextButton);
+            votePanel.add(scrollPane);
+            votePanel.add(addSuggestion);
+            votePanel.add(indexLabel);
             votePanel.add(titleLabel);
             votePanel.add(jScrollPane);
         }
@@ -403,6 +429,84 @@ public class MainPanel extends JFrame implements ActionListener {
         votePanel.setOpaque(false);
 
         return voteSize;
+    }
+
+    private ActionListener setSuggestionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FontUIResource font = new FontUIResource("微软雅黑", 0, 20);
+                UIManager.put("OptionPane.buttonFont", font);
+                UIManager.put("OptionPane.messageFont", font);
+                if (suggestionText.getText().equals("")) {
+                    JOptionPane.showMessageDialog(null, "请输入内容！", "提示", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    String text = ((JButton)e.getSource()).getText();
+                    int id = Integer.parseInt(text.substring(text.indexOf("=") + 1, text.indexOf(">", 8)));
+                    if (UpdateData.addVoteSuggestion(id,"\n"+suggestionText.getText())){
+                        JOptionPane.showMessageDialog(null, "建议提交成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
+                        suggestionText.setText("");
+                        functionPage = "投票";
+                        refresh();
+                    }else {
+                        JOptionPane.showMessageDialog(null, "出现了奇奇怪怪的错误~", "提示", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        };
+    }
+
+    private void setVoteButton() {
+        supportButton.setBackground(Color.WHITE);
+        opposeButton.setBackground(Color.WHITE);
+        supportButton.setFont(new Font("黑体", 1, 18));
+        opposeButton.setFont(new Font("黑体", 1, 18));
+        supportButton.setBounds(50, 300, 140, 40);
+        opposeButton.setBounds(250, 300, 140, 40);
+        supportButton.addActionListener(voteActionListener());
+        opposeButton.addActionListener(voteActionListener());
+    }
+
+    private JButton setPageButton(final int sort, String name, int size) {
+        final JButton jButton = new JButton(name);
+        jButton.setFont(new Font("黑体", 1, 20));
+        jButton.setBorderPainted(false);
+        jButton.setBackground(Color.WHITE);
+        jButton.setSize(100, 40);
+        if (name.equals("上一页")) {
+            if ((sort == 0 && votePage == 0) || (sort == 1 && annPage == 0)) {
+                jButton.setEnabled(false);
+            }
+        } else {
+            if ((sort == 0 && votePage == size - 1) || (sort == 1 && annPage == size - 1)) {
+                jButton.setEnabled(false);
+            }
+        }
+        jButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JButton jButton1 = (JButton) e.getSource();
+                if (jButton1.getText().contains("上一页")) {
+                    if (sort == 0) {
+                        votePage--;
+                    } else {
+                        annPage--;
+                    }
+                    functionPage = "投票";
+                    refresh();
+                } else {
+                    if (sort == 0) {
+                        votePage++;
+                    } else {
+                        annPage++;
+                    }
+                    functionPage = "投票";
+                    refresh();
+                }
+            }
+        });
+
+        return jButton;
     }
 
     private ActionListener voteActionListener() {

@@ -41,4 +41,18 @@ public class UpdateData {
             return false;
         }
     }
+
+    public static boolean addVoteSuggestion(int voteId,String suggestion){
+        try {
+            Connection connection = DbHelper.getConnection();
+            String sql = "update vote set suggestion=CONCAT_WS(suggestion,'','"+ suggestion + "') where id=" + voteId;
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+            DbHelper.close(preparedStatement,connection,null);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
