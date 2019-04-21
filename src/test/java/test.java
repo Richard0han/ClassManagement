@@ -1,12 +1,6 @@
 import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.User;
-import com.classmanagement.client.ui.BasicData;
 import com.classmanagement.client.ui.ChatUI;
-import com.classmanagement.client.ui.Login;
-import com.classmanagement.client.ui.MainUI;
-import com.classmanagement.client.utils.GetWeather;
-import com.classmanagement.client.utils.JsonParser;
-import com.classmanagement.client.utils.LoginVerification;
 
 /**
  * ClassManager
@@ -18,7 +12,7 @@ import com.classmanagement.client.utils.LoginVerification;
 
 public class test {
     public static void main(String[] args) throws Exception {
-        new Login();
+//        new Login();
 //        String cookie = LoginVerification.simulateLogin("201800301323", "a131104708");
 //        BasicData basicData = new BasicData(cookie);
 
@@ -50,7 +44,7 @@ public class test {
 //            System.out.println(weather[i]);
 //        }
 //        System.out.println();
-        MainUI mainUI = new MainUI(user);
+//        MainUI mainUI = new MainUI(user);
     }
 }
 

@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
  * @date 2019.04
  */
 
-public class ChatUI extends JFrame implements ActionListener {
+public class ChatFrame extends JFrame implements ActionListener {
     private int type;
     private User self, classmate;
     private Forum forum;
@@ -26,13 +26,14 @@ public class ChatUI extends JFrame implements ActionListener {
     private JPanel infoPanel = new JPanel();
     private JLabel nicknameLabel, signatureLabel, portraitLabel;
     private ChatTextPane receivePane, sendPane;
+    private JPanel sendPane;
     private JScrollPane receivePanel, sendPanel;
-    private JLabel download = new JLabel(new ImageIcon("images\\chatFunction\\download.png")),draw = new JLabel(new ImageIcon("images\\chatFunction\\draw.png")),history = new JLabel(new ImageIcon("images\\chatFunction\\history.png"));
-    private JLabel downloadLabel = new JLabel("共享文件"),drawLabel = new JLabel("即时画板"),historyLabel = new JLabel("历史消息");
+    private JLabel download = new JLabel(new ImageIcon("images\\chatFunction\\download.png")), draw = new JLabel(new ImageIcon("images\\chatFunction\\draw.png")), history = new JLabel(new ImageIcon("images\\chatFunction\\history.png"));
+    private JLabel downloadLabel = new JLabel("共享文件"), drawLabel = new JLabel("即时画板"), historyLabel = new JLabel("历史消息");
     private JButton sendButton = new JButton("发送");
     private JButton cancelButton = new JButton("取消");
 
-    public ChatUI(ChatInfo chatInfo) {
+    public ChatFrame(ChatInfo chatInfo) {
         setInfoPanel(chatInfo);
 
         backPanel.setBackground(Color.WHITE);
@@ -42,6 +43,7 @@ public class ChatUI extends JFrame implements ActionListener {
         receivePane.setFont(font);
         receivePane.setBackground(Color.WHITE);
         sendPane = new ChatTextPane();
+        sendPane.setLayout(new GridLayout(1,1));
         sendPane.setBackground(Color.WHITE);
         sendPane.setFont(font);
         receivePanel = new JScrollPane(receivePane);
@@ -56,7 +58,7 @@ public class ChatUI extends JFrame implements ActionListener {
         cancelButton.setFont(buttonFont);
         sendButton.setBounds(535, 563, 80, 30);
         cancelButton.setBounds(435, 563, 80, 30);
-        sendButton.setBackground(new Color(217,135,89));
+        sendButton.setBackground(new Color(217, 135, 89));
         sendButton.setForeground(Color.WHITE);
         cancelButton.setBackground(Color.WHITE);
 
@@ -74,9 +76,12 @@ public class ChatUI extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.getLayeredPane().setLayout(null);
         this.setVisible(true);
+
+        sendButton.addActionListener(this);
+        cancelButton.addActionListener(this);
     }
 
-    private void setInfoPanel(ChatInfo chatInfo){
+    private void setInfoPanel(ChatInfo chatInfo) {
         type = chatInfo.getType();
         self = chatInfo.getSelf();
         infoPanel.setBounds(649, 30, 329, 565);
@@ -87,16 +92,16 @@ public class ChatUI extends JFrame implements ActionListener {
         if (type == 0) {
             classmate = chatInfo.getClassmate();
             imageIcon = new ImageIcon("images\\portrait\\" + classmate.getPortrait() + ".jpg");
-            nicknameLabel = new JLabel(classmate.getNickname() + "(" + classmate.getName() + ")",JLabel.CENTER);
-            signatureLabel = new JLabel(classmate.getSignature(),JLabel.CENTER);
+            nicknameLabel = new JLabel(classmate.getNickname() + "(" + classmate.getName() + ")", JLabel.CENTER);
+            signatureLabel = new JLabel(classmate.getSignature(), JLabel.CENTER);
             signatureLabel.setFont(new Font("黑体", 0, 15));
-            signatureLabel.setBounds(15,180,308,50);
+            signatureLabel.setBounds(15, 180, 308, 50);
             signatureLabel.setForeground(Color.LIGHT_GRAY);
             infoPanel.add(signatureLabel);
         } else {
             forum = chatInfo.getForum();
             imageIcon = new ImageIcon("images\\portrait\\forum" + forum.getIsClass() + ".jpg");
-            nicknameLabel = new JLabel(forum.getName(),JLabel.CENTER);
+            nicknameLabel = new JLabel(forum.getName(), JLabel.CENTER);
         }
         nicknameLabel.setFont(new Font("宋体", 1, 25));
         nicknameLabel.setBounds(70, 150, 200, 50);
@@ -104,16 +109,16 @@ public class ChatUI extends JFrame implements ActionListener {
         imageIcon.setImage(imageIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
         portraitLabel = new JLabel(imageIcon);
         portraitLabel.setBounds(120, 40, 100, 100);
-        download.setBounds(40,280,48,48);
-        draw.setBounds(40,340,56,47);
-        history.setBounds(40,400,54,48);
-        Font describe = new Font("隶书",0,24);
+        download.setBounds(40, 280, 48, 48);
+        draw.setBounds(40, 340, 56, 47);
+        history.setBounds(40, 400, 54, 48);
+        Font describe = new Font("隶书", 0, 24);
         downloadLabel.setFont(describe);
         drawLabel.setFont(describe);
         historyLabel.setFont(describe);
-        downloadLabel.setBounds(150,280,100,40);
-        drawLabel.setBounds(150,340,100,40);
-        historyLabel.setBounds(150,400,100,40);
+        downloadLabel.setBounds(150, 280, 100, 40);
+        drawLabel.setBounds(150, 340, 100, 40);
+        historyLabel.setBounds(150, 400, 100, 40);
         infoPanel.add(portraitLabel);
         infoPanel.add(download);
         infoPanel.add(draw);
@@ -125,6 +130,18 @@ public class ChatUI extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if (e.getSource() == sendButton) {
+//            连接服务器发送，应该是Boolean型数据
+           String meg = sendPane.getText();
+            JLabel infoLabel = new JLabel(self.getNickname(), new ImageIcon(), JLabel.RIGHT);
+            JTextArea megArea = new JTextArea(meg);
+            infoLabel.setSize(650, 60);
+            megArea.setSize(650, 40);
+            receivePane.insertComponent(infoLabel);
+            receivePane.insertComponent(megArea);
+            sendPane.setText("");
+        } else if (e.getSource() == cancelButton) {
+            this.dispose();
+        }
     }
 }

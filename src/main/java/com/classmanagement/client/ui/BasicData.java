@@ -114,7 +114,8 @@ public class BasicData extends JFrame implements ActionListener {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) screenSize.getWidth() / 3;
         int y = (int) screenSize.getHeight() / 5;
-        this.setBounds(x, y, 413, 637);
+        this.setSize(413, 637);
+        this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         ImageIcon win = new ImageIcon("images\\win.jpg");
         this.setIconImage(win.getImage());
@@ -156,7 +157,7 @@ public class BasicData extends JFrame implements ActionListener {
                 user.setPortrait(setPortrait.getSelectedIndex());
                 if (AddData.addUser(user)) {
                     JOptionPane.showMessageDialog(this, "注册成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
-                    MainUI mainUI = new MainUI(user);
+                    MainFrame mainFrame = new MainFrame(user);
                     this.dispose();
                 }
             }

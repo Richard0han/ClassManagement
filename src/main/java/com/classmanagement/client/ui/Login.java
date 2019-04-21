@@ -19,32 +19,28 @@ import static com.classmanagement.client.utils.LoginVerification.simulateLogin;
  * @create: 2019-03-29 22:08
  **/
 public class Login extends JFrame implements ActionListener {
-    private static final int WIDTH = 360;
-    private static final int HEIGHT = 275;
     private JButton confirm;
     private JButton cancel;
-    String userName;
-    String pwd;
-    String cookie;
+    private String userName;
+    private String pwd;
+    private String cookie;
     private JTextField stuNoField;
     private JPasswordField passwordField;
-    private static String dbstu_no;
 
     public Login() {
         super("登录页面");
 
         this.getContentPane().setLayout(null);
-        this.setSize(WIDTH, HEIGHT);
 
         JLabel stuNoLabel = new JLabel("学号");
         JLabel pwdLabel = new JLabel("密码");
 
         confirm = new JButton("登录");
         cancel = new JButton("退出");
-        stuNoLabel.setBounds(35, 101, 72, 18);
-        pwdLabel.setBounds(35, 134, 72, 18);
-        confirm.setBounds(60, 178, 93, 37);
-        cancel.setBounds(191, 178, 93, 37);
+        stuNoLabel.setBounds(120, 140, 200, 50);
+        pwdLabel.setBounds(120, 190, 200, 50);
+        confirm.setBounds(80, 280, 150, 50);
+        cancel.setBounds(330, 280, 150, 50);
         stuNoLabel.setForeground(Color.gray);
         pwdLabel.setForeground(Color.gray);
         confirm.setForeground(Color.gray);
@@ -53,27 +49,19 @@ public class Login extends JFrame implements ActionListener {
         cancel.setBackground(Color.white);
 
         ImageIcon headPicture = new ImageIcon("images\\portrait\\0.jpg");
-        headPicture.setImage(headPicture.getImage().getScaledInstance(75, 75,
-                Image.SCALE_SMOOTH));
+        headPicture.setImage(headPicture.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
         JLabel headLabel = new JLabel();
         headLabel.setIcon(headPicture);
-        headLabel.setBounds(125, 13, 75, 75);
+        headLabel.setBounds(250, 40,100, 100);
         ImageIcon images = new ImageIcon("images\\background.png");
         JLabel logoLabel = new JLabel(images);
         this.setIconImage(new ImageIcon("images\\win.jpg").getImage());
         logoLabel.setBounds(0, 0, images.getIconWidth(), images.getIconHeight());
 
-
-        int width = Toolkit.getDefaultToolkit().getScreenSize().width;
-        int height = Toolkit.getDefaultToolkit().getScreenSize().height;
-        int windowsWidth = this.getWidth();
-        int windowsHeight = this.getHeight();
-        this.setBounds((width - windowsWidth) / 2, (height - windowsHeight) / 2, windowsWidth, windowsHeight);
-
         stuNoField = new JTextField("", 20);
         passwordField = new JPasswordField("", 20);
-        stuNoField.setBounds(90, 97, 197, 27);
-        passwordField.setBounds(90, 132, 197, 27);
+        stuNoField.setBounds(190, 150, 250, 40);
+        passwordField.setBounds(190, 200, 250, 40);
 
         Font fm = new Font(" 黑体", Font.BOLD, 20);
         Font mf = new Font(" 黑体", Font.PLAIN, 20);
@@ -92,7 +80,8 @@ public class Login extends JFrame implements ActionListener {
         this.add(headLabel);
         this.add(logoLabel);
 
-
+        this.setSize(images.getIconWidth(),images.getIconHeight());
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
         cancel.addActionListener(this);
         confirm.addActionListener(this);
@@ -125,7 +114,7 @@ public class Login extends JFrame implements ActionListener {
                             this.dispose();
                         } else {
                             User user = GetData.getUser(userName);
-                            new MainUI(user);
+                            new MainFrame(user);
                             this.dispose();
                         }
                     }

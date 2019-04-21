@@ -25,7 +25,7 @@ import java.util.List;
  * @date 2019.03
  */
 
-public class MainUI extends JFrame implements ActionListener {
+public class MainFrame extends JFrame implements ActionListener {
     private User user;
     private ImageIcon background = new ImageIcon("images\\mainPanel.png");
     private JLabel backPic = new JLabel(background);
@@ -52,7 +52,7 @@ public class MainUI extends JFrame implements ActionListener {
     private String functionPage = "聊天";
     private String chatPage = "0";
 
-    public MainUI(User user) {
+    public MainFrame(User user) {
         super("微校");
 
         backPic.setBounds(0, 0, 450, 920);
