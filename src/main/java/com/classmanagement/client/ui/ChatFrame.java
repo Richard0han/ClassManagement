@@ -1,14 +1,17 @@
 package com.classmanagement.client.ui;
 
+import com.classmanagement.client.server.EchoClient;
 import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.utils.ChatTextPane;
 
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 /**
  * ClassManagement
@@ -26,12 +29,12 @@ public class ChatFrame extends JFrame implements ActionListener {
     private JPanel infoPanel = new JPanel();
     private JLabel nicknameLabel, signatureLabel, portraitLabel;
     private ChatTextPane receivePane, sendPane;
-    private JPanel sendPane;
     private JScrollPane receivePanel, sendPanel;
     private JLabel download = new JLabel(new ImageIcon("images\\chatFunction\\download.png")), draw = new JLabel(new ImageIcon("images\\chatFunction\\draw.png")), history = new JLabel(new ImageIcon("images\\chatFunction\\history.png"));
     private JLabel downloadLabel = new JLabel("共享文件"), drawLabel = new JLabel("即时画板"), historyLabel = new JLabel("历史消息");
     private JButton sendButton = new JButton("发送");
     private JButton cancelButton = new JButton("取消");
+    EchoClient echoClient;
 
     public ChatFrame(ChatInfo chatInfo) {
         setInfoPanel(chatInfo);
@@ -43,7 +46,7 @@ public class ChatFrame extends JFrame implements ActionListener {
         receivePane.setFont(font);
         receivePane.setBackground(Color.WHITE);
         sendPane = new ChatTextPane();
-        sendPane.setLayout(new GridLayout(1,1));
+        sendPane.setLayout(new GridLayout(1, 1));
         sendPane.setBackground(Color.WHITE);
         sendPane.setFont(font);
         receivePanel = new JScrollPane(receivePane);
@@ -126,22 +129,77 @@ public class ChatFrame extends JFrame implements ActionListener {
         infoPanel.add(downloadLabel);
         infoPanel.add(drawLabel);
         infoPanel.add(historyLabel);
+
+        try {
+            echoClient = new EchoClient();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == sendButton) {
 //            连接服务器发送，应该是Boolean型数据
-           String meg = sendPane.getText();
-            JLabel infoLabel = new JLabel(self.getNickname(), new ImageIcon(), JLabel.RIGHT);
-            JTextArea megArea = new JTextArea(meg);
-            infoLabel.setSize(650, 60);
-            megArea.setSize(650, 40);
-            receivePane.insertComponent(infoLabel);
-            receivePane.insertComponent(megArea);
+            StyledDocument doc = sendPane.getStyledDocument();
+            append(doc, self);
             sendPane.setText("");
         } else if (e.getSource() == cancelButton) {
             this.dispose();
+        }
+
+    }
+
+    public void append(StyledDocument content, User user) {
+        ImageIcon imageIcon = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
+        imageIcon.setImage(imageIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+        receivePane.insertIcon(imageIcon);
+        Document receiveMeg = receivePane.getStyledDocument();
+        SimpleAttributeSet as = new SimpleAttributeSet();
+        StyleConstants.setFontSize(as, 24);
+        try {
+            receiveMeg.insertString(receiveMeg.getLength(), self.getNickname() + "\n\n", as);
+            int end = 0;
+            while (end < content.getLength()) {
+                Element e0 = content.getCharacterElement(end);
+
+                SimpleAttributeSet asl = new SimpleAttributeSet();
+                StyleConstants.setForeground(asl, StyleConstants.getForeground(e0.getAttributes()));
+                StyleConstants.setFontSize(asl, StyleConstants.getFontSize(e0.getAttributes()));
+                StyleConstants.setFontFamily(asl, StyleConstants.getFontFamily(e0.getAttributes()));
+                String text = e0.getDocument().getText(end, e0.getEndOffset() - end);
+
+                if ("icon".equals(e0.getName())) {
+                    receiveMeg.insertString(receiveMeg.getLength(), text, e0.getAttributes());
+                } else {
+                    receiveMeg.insertString(receiveMeg.getLength(), text, asl);
+                }
+
+                end = e0.getEndOffset();
+            }
+            receiveMeg.insertString(receiveMeg.getLength(), "\n\n", as);
+
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void shake() {
+
+        Point p = this.getLocationOnScreen();
+        int times = 10;
+        for (int i = 0; i < times; i++) {
+            if (i % 2 == 0) {
+                setLocation(p.x + 5, p.y + 5);
+            } else {
+                setLocation(p.x - 5, p.y - 5);
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e1) {
+
+                e1.printStackTrace();
+            }
         }
     }
 }

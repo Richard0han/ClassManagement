@@ -42,6 +42,8 @@ public class GetData {
                 user.setClassName(resultSet.getString("class_name"));
                 user.setSex(resultSet.getString("sex"));
                 user.setIsManager(resultSet.getInt("is_manager"));
+                user.setPort(resultSet.getInt("port"));
+                user.setNetAddress(resultSet.getString("net_address"));
             }
         } catch (Exception e) {
             user = null;

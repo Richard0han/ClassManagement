@@ -1,6 +1,7 @@
 import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.User;
-import com.classmanagement.client.ui.ChatUI;
+import com.classmanagement.client.ui.ChatFrame;
+import com.classmanagement.client.ui.Login;
 
 /**
  * ClassManager
@@ -38,7 +39,7 @@ public class test {
         chatInfo.setType(0);
         chatInfo.setSelf(user);
         chatInfo.setClassmate(classmate);
-        new ChatUI(chatInfo);
+        new ChatFrame(chatInfo);
 //        String weather[] = GetWeather.getWeather(0);
 //        for (int i = 0; i < 5; i++) {
 //            System.out.println(weather[i]);

@@ -1,5 +1,7 @@
 package com.classmanagement.client.bean;
 
+import javax.swing.text.StyledDocument;
+
 /**
  * ClassManagement
  *
@@ -16,6 +18,7 @@ public class ChatInfo {
     private User self;
     private User classmate;
     private Forum forum;
+    private StyledDocument content;
 
     public int getType() {
         return type;

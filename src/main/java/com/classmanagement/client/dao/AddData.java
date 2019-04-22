@@ -50,7 +50,7 @@ public class AddData {
                 user.setClassId(resultSet.getInt("id"));
             }
 
-            String sql2 = "insert into user (stu_no,name,nickname,signature,portrait,class_id,sex,is_manager,class_name) values(?,?,?,?,?,?,?,?,?)";
+            String sql2 = "insert into user (stu_no,name,nickname,signature,portrait,class_id,sex,is_manager,class_name,net_address,port) values(?,?,?,?,?,?,?,?,?,?,?)";
             preparedStatement = connection.prepareStatement(sql2);
             preparedStatement.setString(1, user.getStuNo());
             preparedStatement.setString(2, user.getName());
@@ -61,6 +61,8 @@ public class AddData {
             preparedStatement.setString(7, user.getSex());
             preparedStatement.setInt(8, user.getIsManager());
             preparedStatement.setString(9, user.getClassName());
+            preparedStatement.setString(10,user.getNetAddress());
+            preparedStatement.setInt(11,user.getPort());
             preparedStatement.executeUpdate();
 
             DbHelper.close(preparedStatement, connection, resultSet);

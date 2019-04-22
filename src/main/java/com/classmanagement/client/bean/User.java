@@ -19,6 +19,24 @@ public class User {
     private String sex;
     private int isManager;
     private String className;
+    private String netAddress;
+    private int port;
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getNetAddress() {
+        return netAddress;
+    }
+
+    public void setNetAddress(String netAddress) {
+        this.netAddress = netAddress;
+    }
 
     public String getSignature() {
         return signature;
