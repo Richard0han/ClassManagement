@@ -4,6 +4,7 @@ import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.utils.ChatTextPane;
+import com.classmanagement.client.utils.JsonParser;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
@@ -186,7 +187,7 @@ public class ChatFrame extends JFrame implements ActionListener {
                     } else {
                         file.setForumId(forum.getId());
                     }
-                    uploadFile(file, f);
+//                    uploadFile(file, f);
                 }
             }
         } else if (e.getSource() == shakeWin) {

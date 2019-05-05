@@ -1,5 +1,6 @@
 package com.classmanagement.client.utils;
 
+import com.classmanagement.client.bean.File;
 import com.classmanagement.client.bean.User;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -36,5 +37,16 @@ public class JsonParser {
         user.setStuNo(jsonObject.getString(key));
         return user;
 
+    }
+
+    public static String FileToJson(File file) {
+        JSON json = (JSON) JSON.toJSON(file);
+        return json.toString();
+    }
+
+    public static File getFile(String json){
+        File file = JSON.parseObject(json,File.class);
+        System.out.println(file.getSender());
+        return file;
     }
 }
