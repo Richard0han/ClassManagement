@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
  */
 
 public class FrameManager {
-    public static LinkedHashMap<Integer, ChatFrame> frameManager;
+    public static LinkedHashMap<String, ChatFrame> whisperFrameManager;
+    public static LinkedHashMap<Integer,ChatFrame> forumFrameManager;
     public static User self;
 }

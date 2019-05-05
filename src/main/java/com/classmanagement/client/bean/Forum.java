@@ -1,5 +1,7 @@
 package com.classmanagement.client.bean;
 
+import java.io.Serializable;
+
 /**
  * ClassManagement
  *
@@ -8,7 +10,7 @@ package com.classmanagement.client.bean;
  * @date 2019.04
  */
 
-public class Forum {
+public class Forum implements Serializable {
     private int id;
     private String name;
     private int isClass;

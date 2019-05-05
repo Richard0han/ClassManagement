@@ -1,6 +1,7 @@
 package com.classmanagement.client.bean;
 
 import javax.swing.text.StyledDocument;
+import java.io.Serializable;
 
 /**
  * ClassManagement
@@ -10,7 +11,7 @@ import javax.swing.text.StyledDocument;
  * @date 2019.04
  */
 
-public class ChatInfo {
+public class ChatInfo implements Serializable {
     /**
      * description 聊天种类，0为私聊，1为群聊
      */
@@ -19,6 +20,14 @@ public class ChatInfo {
     private User classmate;
     private Forum forum;
     private StyledDocument content;
+
+    public StyledDocument getContent() {
+        return content;
+    }
+
+    public void setContent(StyledDocument content) {
+        this.content = content;
+    }
 
     public int getType() {
         return type;

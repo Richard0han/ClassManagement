@@ -1,10 +1,9 @@
 package com.classmanagement.client.ui;
 
-import com.classmanagement.client.bean.Forum;
-import com.classmanagement.client.bean.User;
-import com.classmanagement.client.bean.Vote;
+import com.classmanagement.client.bean.*;
 import com.classmanagement.client.dao.GetData;
 import com.classmanagement.client.dao.UpdateData;
+import com.classmanagement.client.thread.ReceiveThread;
 import com.classmanagement.client.utils.GetWeather;
 
 import javax.swing.*;
@@ -14,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
  * @date 2019.03
  */
 
-public class MainFrame extends JFrame implements ActionListener {
+public class MainFrame extends JFrame implements ActionListener, MouseListener {
     private User user;
     private ImageIcon background = new ImageIcon("images\\mainPanel.png");
     private JLabel backPic = new JLabel(background);
@@ -43,12 +43,17 @@ public class MainFrame extends JFrame implements ActionListener {
     private List<Forum> forumList;
     private List<User> classmateList;
     private List<Vote> voteList;
+    private List<Announcement> annList;
     private JButton supportButton;
     private JButton opposeButton;
     JTextArea suggestionText = new JTextArea();
     private int votePage = 0;
     private int annPage = 0;
     private Button testButton = new Button("测试");
+    private JLabel chatLabel = new JLabel("聊天");
+    private JLabel voteLabel = new JLabel("投票");
+    private JLabel annLabel = new JLabel("公告");
+    private JLabel divisionLabel = new JLabel("—");
     private String functionPage = "聊天";
     private String chatPage = "0";
 
@@ -60,6 +65,7 @@ public class MainFrame extends JFrame implements ActionListener {
         mainPanel.setOpaque(false);
         mainPanel.setLayout(null);
 
+        FrameManager.self = user;
         this.user = user;
         ImageIcon portrait = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
         portrait.setImage(portrait.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
@@ -79,7 +85,8 @@ public class MainFrame extends JFrame implements ActionListener {
         signatureLabel.setBounds(130, 75, 190, 20);
         weatherPicLabel.setBounds(340, 15, 90, 90);
         functionPanel.setBounds(0, 156, 450, 724);
-        testButton.setBounds(0, 0, 100, 100);
+        testButton.setBounds(0, 0, 10, 20);
+        setMenuLabel();
         refresh();
 
         mainPanel.add(testButton);
@@ -110,7 +117,42 @@ public class MainFrame extends JFrame implements ActionListener {
         ToolTipManager.sharedInstance().setReshowDelay(1);
 
         testButton.addActionListener(this);
+
+        try {
+            new ReceiveThread().run();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    private void setMenuLabel() {
+        Font font = new Font("黑体", 1, 25);
+        Color qqStyleOrange = new Color(190, 132, 99);
+        chatLabel.setBounds(20, 118, 80, 30);
+        chatLabel.setForeground(qqStyleOrange);
+        chatLabel.setFont(font);
+        voteLabel.setBounds(180, 118, 80, 30);
+        voteLabel.setBackground(Color.GRAY);
+        voteLabel.setForeground(Color.GRAY);
+        voteLabel.setFont(font);
+        annLabel.setBounds(350, 118, 80, 30);
+        annLabel.setBackground(Color.GRAY);
+        annLabel.setForeground(Color.GRAY);
+        annLabel.setFont(font);
+        divisionLabel.setBounds(23, 140, 80, 15);
+        divisionLabel.getLocation().getX();
+        divisionLabel.setForeground(qqStyleOrange);
+        divisionLabel.setFont(new Font("黑体", 1, 45));
+
+        mainPanel.add(chatLabel);
+        mainPanel.add(voteLabel);
+        mainPanel.add(annLabel);
+        mainPanel.add(divisionLabel);
+        chatLabel.addMouseListener(this);
+        voteLabel.addMouseListener(this);
+        annLabel.addMouseListener(this);
+    }
+
 
     /**
      * description 设置按钮靠左，白色，字体
@@ -194,8 +236,8 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     private void setFunctionPanel() {
-        forumList = GetData.getForum(user);
-        classmateList = GetData.getClassmate(user.getClassId());
+        forumList = GetData.getForumList(user);
+        classmateList = GetData.getClassmate(user.getClassId(), user);
         functionPanel.setLayout(functionCard);
         functionPanel.add(chatPanel, "聊天");
         chatCard = new CardLayout();
@@ -209,8 +251,9 @@ public class MainFrame extends JFrame implements ActionListener {
         chatCard.show(chatPanel, "0");
         functionPanel.setBackground(Color.WHITE);
         setVotePanel();
-        functionPanel.add(announcementPanel, "公告");
+        setAnnouncementPanel();
         functionPanel.add(votePanel, "投票");
+        functionPanel.add(announcementPanel, "公告");
         functionCard.show(functionPanel, functionPage);
         functionPanel.setOpaque(false);
     }
@@ -307,7 +350,19 @@ public class MainFrame extends JFrame implements ActionListener {
                 if (e.getClickCount() == 1) {
                     jLabel.setBackground(Color.LIGHT_GRAY);
                 } else if (e.getClickCount() == 2) {
-                    System.out.println(jLabel.getText());
+                    ChatInfo chatInfo = new ChatInfo();
+                    chatInfo.setSelf(FrameManager.self);
+                    String whisperType = "type=\"person\"";
+                    String info = jLabel.getText();
+                    String id = info.substring(info.indexOf("id=") + 4, info.indexOf("\">"));
+                    if (info.contains(whisperType)) {
+                        chatInfo.setType(0);
+                        chatInfo.setClassmate(GetData.getUser(id));
+                    } else {
+                        chatInfo.setType(1);
+                        chatInfo.setForum(GetData.getForum(Integer.parseInt(id)));
+                    }
+                    ChatFrame chatFrame = ReceiveThread.findWin(chatInfo);
                 }
             }
 
@@ -398,7 +453,7 @@ public class MainFrame extends JFrame implements ActionListener {
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setBounds(25, 400, 300, 150);
             JButton addSuggestion = new JButton("<html><p id=" + vote.getId() + ">提</p><p>交</p><p>建</p><p>议</p></html>");
-            addSuggestion.setFont(new Font("宋体",1,20));
+            addSuggestion.setFont(new Font("宋体", 1, 20));
             addSuggestion.setBounds(345, 400, 80, 150);
             addSuggestion.setBackground(Color.WHITE);
             addSuggestion.addActionListener(setSuggestionListener());
@@ -431,6 +486,54 @@ public class MainFrame extends JFrame implements ActionListener {
         return voteSize;
     }
 
+    private int setAnnouncementPanel() {
+        annList = GetData.getAnnouncement(user.getClassId());
+        int annSize = annList.size();
+        announcementPanel.setBackground(Color.WHITE);
+        if (annSize == 0) {
+            JLabel notFind = new JLabel(new ImageIcon("images\\noAnn.png"));
+            notFind.setBounds(85, 180, 280, 285);
+            announcementPanel.add(notFind);
+        } else {
+            Announcement announcement = annList.get(annPage);
+            Font titleFont = new Font("黑体", 1, 25);
+            JLabel titleLabel;
+            titleLabel = new JLabel(announcement.getTitle(), JLabel.CENTER);
+            titleLabel.setFont(titleFont);
+            titleLabel.setBounds(0, 15, 450, 40);
+            JButton lastButton = setPageButton(1, "上一页", annSize);
+            JButton nextButton = setPageButton(1, "下一页", annSize);
+            lastButton.setLocation(50, 600);
+            nextButton.setLocation(280, 600);
+
+            JLabel indexLabel = new JLabel((annPage + 1) + "/" + annSize);
+            indexLabel.setFont(new Font("黑体", 0, 15));
+            indexLabel.setBounds(210, 600, 80, 40);
+
+            JTextArea textArea = new JTextArea();
+            textArea.setText(announcement.getContent());
+            textArea.setFont(new Font("黑体", 1, 20));
+            textArea.setForeground(Color.LIGHT_GRAY);
+            textArea.setLineWrap(true);
+            textArea.setEditable(false);
+            votePanel.add(textArea);
+            JScrollPane jScrollPane = new JScrollPane(textArea);
+            jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            jScrollPane.setBounds(0, 50, 450, 420);
+            announcementPanel.add(lastButton);
+            announcementPanel.add(nextButton);
+            announcementPanel.add(indexLabel);
+            announcementPanel.add(titleLabel);
+            announcementPanel.add(jScrollPane);
+        }
+        announcementPanel.setBounds(0, 0, 450, 724);
+        announcementPanel.setLayout(null);
+        announcementPanel.setOpaque(false);
+
+        return annSize;
+    }
+
     private ActionListener setSuggestionListener() {
         return new ActionListener() {
             @Override
@@ -441,14 +544,14 @@ public class MainFrame extends JFrame implements ActionListener {
                 if (suggestionText.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "请输入内容！", "提示", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    String text = ((JButton)e.getSource()).getText();
+                    String text = ((JButton) e.getSource()).getText();
                     int id = Integer.parseInt(text.substring(text.indexOf("=") + 1, text.indexOf(">", 8)));
-                    if (UpdateData.addVoteSuggestion(id,"\n"+suggestionText.getText())){
+                    if (UpdateData.addVoteSuggestion(id, "\n" + suggestionText.getText())) {
                         JOptionPane.showMessageDialog(null, "建议提交成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
                         suggestionText.setText("");
                         functionPage = "投票";
                         refresh();
-                    }else {
+                    } else {
                         JOptionPane.showMessageDialog(null, "出现了奇奇怪怪的错误~", "提示", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -489,20 +592,21 @@ public class MainFrame extends JFrame implements ActionListener {
                 if (jButton1.getText().contains("上一页")) {
                     if (sort == 0) {
                         votePage--;
+                        functionPage = "投票";
                     } else {
                         annPage--;
+                        functionPage = "公告";
                     }
-                    functionPage = "投票";
-                    refresh();
                 } else {
                     if (sort == 0) {
                         votePage++;
+                        functionPage = "投票";
                     } else {
                         annPage++;
+                        functionPage = "公告";
                     }
-                    functionPage = "投票";
-                    refresh();
                 }
+                refresh();
             }
         });
 
@@ -548,12 +652,70 @@ public class MainFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        functionCard.show(functionPanel, "投票");
+        functionCard.show(functionPanel, "聊天");
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        chatLabel.setForeground(Color.GRAY);
+        voteLabel.setForeground(Color.GRAY);
+        annLabel.setForeground(Color.GRAY);
+        JLabel jLabel = (JLabel) e.getSource();
+        String text = jLabel.getText();
+        functionPage = text;
+        jLabel.setForeground(new Color(190, 132, 99));
+        functionCard.show(functionPanel, functionPage);
+        int x;
+        double now = divisionLabel.getLocation().getX();
+        if (text.equals("聊天")) {
+            x = 23;
+        } else if (text.equals("投票")) {
+            x = 183;
+        } else {
+            x = 353;
+        }
+//        for (int i = 0; i < 8; i++) {
+//            divisionLabel.setLocation((int) (now - x + now / 8), 140);
+//            now = divisionLabel.getLocation().getX();
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+        divisionLabel.setLocation(x, 140);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        JLabel jLabel = (JLabel) e.getSource();
+        if (!functionPage.equals(jLabel.getText())) {
+            jLabel.setForeground(Color.BLACK);
+        }
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        JLabel jLabel = (JLabel) e.getSource();
+        if (!functionPage.equals(jLabel.getText())) {
+            jLabel.setForeground(Color.GRAY);
+        }
     }
 
     private void refresh() {
         chatPanel.removeAll();
         votePanel.removeAll();
+        announcementPanel.removeAll();
         setFunctionPanel();
         chatCard.show(chatPanel, chatPage);
     }

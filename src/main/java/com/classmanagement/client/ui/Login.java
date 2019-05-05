@@ -82,6 +82,7 @@ public class Login extends JFrame implements ActionListener {
 
         this.setSize(images.getIconWidth(),images.getIconHeight());
         this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         cancel.addActionListener(this);
         confirm.addActionListener(this);

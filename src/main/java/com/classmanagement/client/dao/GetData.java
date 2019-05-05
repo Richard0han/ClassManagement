@@ -1,5 +1,6 @@
 package com.classmanagement.client.dao;
 
+import com.classmanagement.client.bean.Announcement;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.bean.Vote;
@@ -45,6 +46,8 @@ public class GetData {
                 user.setPort(resultSet.getInt("port"));
                 user.setNetAddress(resultSet.getString("net_address"));
             }
+
+            user.setStuNo(stuNo);
         } catch (Exception e) {
             user = null;
             e.printStackTrace();
@@ -55,7 +58,28 @@ public class GetData {
         return user;
     }
 
-    public static List<Forum> getForum(User user) {
+    public static Forum getForum(int id) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Forum forum = null;
+        try {
+            connection = DbHelper.getConnection();
+            String sql = "select * from forum where id=" + id;
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                forum = new Forum();
+                forum.setName(resultSet.getString("name"));
+                forum.setIsClass(resultSet.getInt("is_class"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return forum;
+    }
+
+    public static List<Forum> getForumList(User user) {
         List<Forum> list = new ArrayList<Forum>();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -93,7 +117,7 @@ public class GetData {
         return list;
     }
 
-    public static List<User> getClassmate(int classId) {
+    public static List<User> getClassmate(int classId, User self) {
         List<User> list = new ArrayList<User>();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -107,13 +131,17 @@ public class GetData {
             while (resultSet.next()) {
                 user = new User();
                 user.setStuNo(resultSet.getString("stu_no"));
-                user.setNickname(resultSet.getString("nickname"));
-                user.setName(resultSet.getString("name"));
-                user.setSignature(resultSet.getString("signature"));
-                user.setPortrait(resultSet.getInt("portrait"));
-                user.setSex(resultSet.getString("sex"));
-                user.setIsManager(resultSet.getInt("is_manager"));
-                list.add(user);
+                if ((!user.getStuNo().equals(self.getStuNo())) && (self != null)) {
+                    user.setNickname(resultSet.getString("nickname"));
+                    user.setName(resultSet.getString("name"));
+                    user.setSignature(resultSet.getString("signature"));
+                    user.setPortrait(resultSet.getInt("portrait"));
+                    user.setSex(resultSet.getString("sex"));
+                    user.setIsManager(resultSet.getInt("is_manager"));
+                    user.setPort(resultSet.getInt("port"));
+                    user.setNetAddress(resultSet.getString("net_address"));
+                    list.add(user);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,6 +193,63 @@ public class GetData {
             e.printStackTrace();
         } finally {
             DbHelper.close(preparedStatement, connection, resultSet);
+        }
+        return list;
+    }
+
+    public static List<User> getForumMember(int forumId) {
+        List<User> users = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        User user = null;
+
+        try {
+            connection = DbHelper.getConnection();
+            String sql1 = "select * from forum_history where forum_id=" + forumId;
+            preparedStatement = connection.prepareStatement(sql1);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String stuNo = resultSet.getString("stu_no");
+                String sql2 = "select * from user where stu_no=" + stuNo;
+                preparedStatement = connection.prepareStatement(sql2);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    user = new User();
+                    user.setPort(resultSet.getInt("port"));
+                    user.setNetAddress(resultSet.getString("net_address"));
+                }
+                users.add(user);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public static List<Announcement> getAnnouncement(int classId) {
+        List<Announcement> list = new ArrayList<Announcement>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Announcement announcement = null;
+        try {
+            connection = DbHelper.getConnection();
+            String sql = "select * from announcement where forum_id=" + classId;
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                announcement = new Announcement();
+                announcement.setTitle(resultSet.getString("title"));
+                announcement.setContent(resultSet.getString("content"));
+                announcement.setForumId(classId);
+                list.add(announcement);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }

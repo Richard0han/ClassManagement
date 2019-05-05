@@ -1,6 +1,8 @@
 package com.classmanagement.client.bean;
 
-/**
+import java.io.Serializable;
+
+/**]
  * ClassManager
  *
  * @author Richard-J
@@ -8,7 +10,7 @@ package com.classmanagement.client.bean;
  * @date 2019.03
  */
 
-public class User {
+public class User implements Serializable {
     private int id;
     private String stuNo;
     private String name;

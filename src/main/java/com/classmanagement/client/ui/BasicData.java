@@ -2,6 +2,7 @@ package com.classmanagement.client.ui;
 
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.dao.AddData;
+import com.classmanagement.client.dao.GetData;
 import com.classmanagement.client.utils.JsonParser;
 
 import javax.swing.*;
@@ -157,6 +158,7 @@ public class BasicData extends JFrame implements ActionListener {
                 user.setPortrait(setPortrait.getSelectedIndex());
                 if (AddData.addUser(user)) {
                     JOptionPane.showMessageDialog(this, "注册成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
+                    user = GetData.getUser(user.getStuNo());
                     MainFrame mainFrame = new MainFrame(user);
                     this.dispose();
                 }

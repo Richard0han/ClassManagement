@@ -1,6 +1,7 @@
 package com.classmanagement.client.dao;
 
 import com.classmanagement.client.bean.Announcement;
+import com.classmanagement.client.bean.File;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.bean.Vote;
 import com.classmanagement.client.utils.DbHelper;
@@ -180,6 +181,28 @@ public class AddData {
                     announcement.getContent() + "," + announcement.getForumId() + ")";
             ps = connection.prepareStatement(sql);
             ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean addFile(File file){
+        Connection connection;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = DbHelper.getConnection();
+            String sql = "insert into file (name,describe,url,forum_id,sender,reciever) values(?,?,?,?,?,?)";
+            preparedStatement = connection.prepareStatement(sql);
+            int i = 1;
+            preparedStatement.setString(i++,file.getName());
+            preparedStatement.setString(i++,file.getDescribe());
+            preparedStatement.setString(i++,file.getUrl());
+            preparedStatement.setInt(i++,file.getForumId());
+            preparedStatement.setString(i++,file.getSender());
+            preparedStatement.setString(i,file.getReciever());
+            preparedStatement.executeUpdate();
             return true;
         } catch (Exception e) {
             e.printStackTrace();

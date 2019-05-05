@@ -1,5 +1,7 @@
 package com.classmanagement.client.bean;
 
+import java.io.Serializable;
+
 /**
  * ClassManager
  *
@@ -8,12 +10,40 @@ package com.classmanagement.client.bean;
  * @date 2019.03
  */
 
-public class File {
+public class File implements Serializable {
     private int id;
     private String name;
     private String describe;
     private String url;
     private int forumId;
+    private String sender;
+    private String reciever;
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    private long fileSize;
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public String getReciever() {
+        return reciever;
+    }
+
+    public void setReciever(String reciever) {
+        this.reciever = reciever;
+    }
 
     public int getId() {
         return id;
