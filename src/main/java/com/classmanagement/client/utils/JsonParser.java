@@ -46,7 +46,6 @@ public class JsonParser {
 
     public static File getFile(String json){
         File file = JSON.parseObject(json,File.class);
-        System.out.println(file.getSender());
         return file;
     }
 }

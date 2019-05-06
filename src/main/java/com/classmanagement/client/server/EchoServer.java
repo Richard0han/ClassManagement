@@ -18,7 +18,7 @@ import java.net.*;
 public class EchoServer {
     private ServerSocket serverSocket;
     private static final int RECE_PORT = 9999;
-    private static final int FILE_PORT = 10005;
+    private static final int FILE_PORT = 8083;
     private static final String IP = "localhost";
 
     private int count = 0;
@@ -37,12 +37,13 @@ public class EchoServer {
 
     public void service() {
         try {
-            DatagramSocket megSocket = new DatagramSocket(RECE_PORT);
-            ChatHandleThread chatHandleThread = new ChatHandleThread(megSocket);
-            chatHandleThread.run();
+//            DatagramSocket megSocket = new DatagramSocket(RECE_PORT);
+//            ChatHandleThread chatHandleThread = new ChatHandleThread(megSocket);
+//            chatHandleThread.run();
             ServerSocket fileSocket = new ServerSocket(FILE_PORT);
             while (true) {
                 Socket socket = fileSocket.accept();
+                System.out.println(socket.getInetAddress());
                 FileHandleThread fileHandleThread = new FileHandleThread(socket);
                 fileHandleThread.run();
             }

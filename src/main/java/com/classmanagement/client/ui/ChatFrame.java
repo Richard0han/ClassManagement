@@ -3,8 +3,10 @@ package com.classmanagement.client.ui;
 import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
+import com.classmanagement.client.dao.GetData;
+import com.classmanagement.client.thread.SendFileThread;
 import com.classmanagement.client.utils.ChatTextPane;
-import com.classmanagement.client.utils.JsonParser;
+import jdk.nashorn.internal.objects.annotations.Function;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
@@ -13,10 +15,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
+import java.util.List;
 
 /**
  * ClassManagement
@@ -45,10 +45,21 @@ public class ChatFrame extends JFrame implements ActionListener {
     private JButton addPic = new JButton("图片");
     private ByteArrayOutputStream bos;
     private ObjectOutputStream oos;
+    private JLabel toHomeLabel = new JLabel("  资料");
+    private List<com.classmanagement.client.bean.File> fileList;
+    private JPanel functionPanel = new JPanel();
+    private JPanel filePanel = new JPanel();
+    private CardLayout functionCard = new CardLayout();
 
     public ChatFrame(ChatInfo chatInfo) {
         this.chatInfo = chatInfo;
+        functionPanel.setBounds(649, 30, 329, 565);
+        functionPanel.setBackground(Color.WHITE);
+        functionPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        functionPanel.setLayout(functionCard);
         setInfoPanel(chatInfo);
+        setFilePanel();
+        backPanel.add(functionPanel);
 
         backPanel.setBackground(Color.WHITE);
         Font font = new Font("黑体", 0, 20);
@@ -76,10 +87,15 @@ public class ChatFrame extends JFrame implements ActionListener {
         sendButton.setForeground(Color.WHITE);
         cancelButton.setBackground(Color.WHITE);
         sendFile.setBounds(40, 355, 35, 35);
+        backPanel.add(sendFile);
         shakeWin.setBounds(75, 355, 35, 35);
         addPic.setBounds(110, 355, 35, 35);
-        backPanel.add(sendFile);
-        backPanel.add(infoPanel);
+        Color qqStyleOrange = new Color(190, 132, 99);
+        toHomeLabel.setBounds(655, 0, 200, 30);
+        toHomeLabel.setForeground(qqStyleOrange);
+        toHomeLabel.setFont(new Font("幼圆", 1, 25));
+        backPanel.add(toHomeLabel);
+
         backPanel.add(receivePanel);
         backPanel.add(sendPanel);
         backPanel.add(sendButton);
@@ -107,10 +123,9 @@ public class ChatFrame extends JFrame implements ActionListener {
     private void setInfoPanel(ChatInfo chatInfo) {
         type = chatInfo.getType();
         self = chatInfo.getSelf();
-        infoPanel.setBounds(649, 30, 329, 565);
+        infoPanel.setBounds(0, 0, 329, 565);
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setLayout(null);
-        infoPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         ImageIcon imageIcon;
         if (type == 0) {
             classmate = chatInfo.getClassmate();
@@ -134,6 +149,7 @@ public class ChatFrame extends JFrame implements ActionListener {
         imageIcon.setImage(imageIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
         portraitLabel = new JLabel(imageIcon);
         portraitLabel.setBounds(120, 40, 100, 100);
+        infoPanel.add(portraitLabel);
         download.setBounds(40, 280, 48, 48);
         draw.setBounds(40, 340, 56, 47);
         history.setBounds(40, 400, 54, 48);
@@ -144,13 +160,70 @@ public class ChatFrame extends JFrame implements ActionListener {
         downloadLabel.setBounds(150, 280, 100, 40);
         drawLabel.setBounds(150, 340, 100, 40);
         historyLabel.setBounds(150, 400, 100, 40);
-        infoPanel.add(portraitLabel);
+
         infoPanel.add(download);
         infoPanel.add(draw);
         infoPanel.add(history);
         infoPanel.add(downloadLabel);
         infoPanel.add(drawLabel);
         infoPanel.add(historyLabel);
+        functionPanel.add(infoPanel, "资料");
+    }
+
+    private void setFilePanel() {
+        Font font = new Font("黑体", 0, 20);
+        fileList = GetData.getFile(chatInfo);
+        int fileListSize = fileList.size();
+        filePanel.setBounds(0, 0, 329, 565);
+        filePanel.setBackground(Color.WHITE);
+        filePanel.setLayout(null);
+        if (fileListSize != 0) {
+            JPanel filePanelAccessory = new JPanel(new GridLayout(fileListSize, 1));
+            filePanelAccessory.setBackground(Color.WHITE);
+            JLabel[] fileLabels = new JLabel[fileListSize];
+            com.classmanagement.client.bean.File file;
+            for (int i = 0; i < fileListSize; i++) {
+                file = fileList.get(i);
+                ImageIcon imageIcon = getFileImage(file.getName());
+                fileLabels[i] = new JLabel(file.getName(), imageIcon, JLabel.LEFT);
+                fileLabels[i].setBounds(0, 50 * i, 325, 50);
+                fileLabels[i].setFont(font);
+                fileLabels[i].setToolTipText(file.getName());
+                filePanelAccessory.add(fileLabels[i]);
+            }
+            JScrollPane jScrollPane = new JScrollPane(filePanelAccessory);
+            jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            jScrollPane.setBackground(Color.WHITE);
+            jScrollPane.setBounds(0, 0, 329, 565);
+
+
+            filePanel.add(jScrollPane);
+        } else {
+            JLabel notFind = new JLabel(new ImageIcon("images\\noFile.png"));
+            notFind.setBounds(30, 120, 280, 285);
+            filePanel.add(notFind);
+        }
+        functionPanel.add(filePanel, "共享文件");
+        functionCard.show(functionPanel, "共享文件");
+    }
+
+    private ImageIcon getFileImage(String fileName) {
+        ImageIcon imageIcon;
+        if (fileName.contains(".zip") || fileName.contains(".rar") || fileName.contains(".7z")) {
+            imageIcon = new ImageIcon("images\\file\\folder.png");
+        } else if (fileName.contains(".jpg") || fileName.contains(".png") || fileName.contains(".gif") || fileName.contains(".jpeg") || fileName.contains(".bmp")) {
+            imageIcon = new ImageIcon("images\\file\\picture.png");
+        } else if (fileName.contains(".ppt")) {
+            imageIcon = new ImageIcon("images\\file\\p.png");
+        } else if (fileName.contains(".doc") || fileName.contains(".txt")) {
+            imageIcon = new ImageIcon("images\\file\\w.png");
+        } else if (fileName.contains(".xls")) {
+            imageIcon = new ImageIcon("images\\file\\s.png");
+        } else {
+            imageIcon = new ImageIcon("images\\file\\none.png");
+        }
+        return imageIcon;
     }
 
     @Override
@@ -183,11 +256,17 @@ public class ChatFrame extends JFrame implements ActionListener {
                     file.setSender(self.getStuNo());
                     file.setFileSize(f.length());
                     if (type == 0) {
-                        file.setReciever(classmate.getStuNo());
+                        file.setRecipient(classmate.getStuNo());
                     } else {
                         file.setForumId(forum.getId());
                     }
-//                    uploadFile(file, f);
+                    try {
+                        Socket socket = new Socket("localhost", 8083);
+                        Thread thread = new SendFileThread(socket, file, f);
+                        thread.run();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         } else if (e.getSource() == shakeWin) {
@@ -197,60 +276,6 @@ public class ChatFrame extends JFrame implements ActionListener {
             f.setIconImage(new ImageIcon("images\\win.jpg").getImage());
             f.show();
             sendPane.insertIcon(new ImageIcon(f.getDirectory() + "\\" + f.getFile()));
-        }
-    }
-
-    private boolean uploadFile(com.classmanagement.client.bean.File file, File f) {
-        try {
-            //字节数组输出流
-            bos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(bos);
-
-            oos.writeObject(file);
-
-            //最终
-            byte[] b = bos.toByteArray();
-            //把要发送的信息转换为字节数组
-            //网络上发送任何东西都是发送字节数组
-
-            DatagramSocket socket = new DatagramSocket();
-            //UDP通信
-            socket.setSendBufferSize(1024 * 1024);
-            String netAddress = "localhost";
-            InetAddress add = InetAddress.getByName(netAddress);
-            DatagramPacket p = new DatagramPacket(b, 0, b.length, add, 10005);
-            //发送
-            socket.send(p);
-            socket.close();
-
-            socket = new DatagramSocket();
-            FileInputStream fileInputStream = new FileInputStream(f);
-            byte[] buffer = new byte[1024];
-//            int length = 0;
-//            int progress = 0;
-//            Long fileSize = f.length();
-//            DataOutputStream out = new DataOutputStream(bos);
-//            while ((length = fileInputStream.read(buffer)) != 0) {
-//                progress += length;
-//               out.write(buffer,0,length);
-//                System.out.println("进度" + (double) progress / fileSize);
-//            }
-
-            while (fileInputStream.read(buffer) != -1) {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, add, 10005);
-                socket.send(packet);
-            }
-
-            fileInputStream.close();
-            System.out.println("文件上传成功！");
-            socket.close();
-            return true;
-        } catch (SocketException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 

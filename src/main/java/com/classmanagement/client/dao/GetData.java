@@ -1,9 +1,6 @@
 package com.classmanagement.client.dao;
 
-import com.classmanagement.client.bean.Announcement;
-import com.classmanagement.client.bean.Forum;
-import com.classmanagement.client.bean.User;
-import com.classmanagement.client.bean.Vote;
+import com.classmanagement.client.bean.*;
 import com.classmanagement.client.utils.DbHelper;
 
 import java.sql.Connection;
@@ -248,6 +245,36 @@ public class GetData {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static List<File> getFile(ChatInfo chatInfo) {
+        List<File> list = new ArrayList<>();
+        File file = null;
+        try {
+            Connection connection = DbHelper.getConnection();
+            String sql = "select * from file where ";
+            if (chatInfo.getType() == 0) {
+                sql += "sender=" + chatInfo.getClassmate().getStuNo() + " and recipient=" + chatInfo.getSelf().getStuNo();
+            } else {
+                sql += "forum_id=" + chatInfo.getForum().getId();
+            }
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                file = new File();
+                file.setId(resultSet.getInt("id"));
+                file.setName(resultSet.getString("file_name"));
+                file.setUrl(resultSet.getString("url"));
+                file.setSender(resultSet.getString("sender"));
+                file.setForumId(resultSet.getInt("forum_id"));
+                file.setRecipient(resultSet.getString("recipient"));
+                list.add(file);
+            }
+            Collections.reverse(list);
         } catch (Exception e) {
             e.printStackTrace();
         }

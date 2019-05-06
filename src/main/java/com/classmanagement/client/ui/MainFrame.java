@@ -674,15 +674,6 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         } else {
             x = 353;
         }
-//        for (int i = 0; i < 8; i++) {
-//            divisionLabel.setLocation((int) (now - x + now / 8), 140);
-//            now = divisionLabel.getLocation().getX();
-//            try {
-//                Thread.sleep(100);
-//            } catch (InterruptedException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
         divisionLabel.setLocation(x, 140);
     }
 

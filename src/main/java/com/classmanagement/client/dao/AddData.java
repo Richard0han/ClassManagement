@@ -193,15 +193,14 @@ public class AddData {
         PreparedStatement preparedStatement = null;
         try {
             connection = DbHelper.getConnection();
-            String sql = "insert into file (name,describe,url,forum_id,sender,reciever) values(?,?,?,?,?,?)";
+            String sql = "insert into file (file_name,url,forum_id,sender,recipient) values(?,?,?,?,?)";
             preparedStatement = connection.prepareStatement(sql);
             int i = 1;
             preparedStatement.setString(i++,file.getName());
-            preparedStatement.setString(i++,file.getDescribe());
             preparedStatement.setString(i++,file.getUrl());
             preparedStatement.setInt(i++,file.getForumId());
             preparedStatement.setString(i++,file.getSender());
-            preparedStatement.setString(i,file.getReciever());
+            preparedStatement.setString(i,file.getRecipient());
             preparedStatement.executeUpdate();
             return true;
         } catch (Exception e) {

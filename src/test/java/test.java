@@ -33,6 +33,7 @@ public class test {
         user.setPort(10001);
         user.setPortrait(2);
         user.setClassId(6);
+        user.setClassName("计软18.3");
         FrameManager.self = user;
         User classmate = new User();
         classmate.setStuNo("201800301244");
@@ -43,6 +44,7 @@ public class test {
         classmate.setNetAddress("localhost");
         classmate.setPort(10002);
         classmate.setPortrait(0);
+        classmate.setClassName("计软18.3");
 
         ChatInfo chatInfo = new ChatInfo();
         chatInfo.setType(0);

@@ -17,7 +17,7 @@ public class File implements Serializable {
     private String url;
     private int forumId;
     private String sender;
-    private String reciever;
+    private String recipient;
 
     public long getFileSize() {
         return fileSize;
@@ -37,12 +37,12 @@ public class File implements Serializable {
         this.sender = sender;
     }
 
-    public String getReciever() {
-        return reciever;
+    public String getRecipient() {
+        return recipient;
     }
 
-    public void setReciever(String reciever) {
-        this.reciever = reciever;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public int getId() {
