@@ -13,7 +13,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.Calendar;
 import java.util.List;
 
@@ -49,24 +55,24 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
     JTextArea suggestionText = new JTextArea();
     private int votePage = 0;
     private int annPage = 0;
-    private Button testButton = new Button("测试");
     private JLabel chatLabel = new JLabel("聊天");
     private JLabel voteLabel = new JLabel("投票");
     private JLabel annLabel = new JLabel("公告");
     private JLabel divisionLabel = new JLabel("—");
     private String functionPage = "聊天";
     private String chatPage = "0";
+    private JButton addVoteButton = new JButton("发起投票");
+    private JButton addAnnButton = new JButton("发布公告");
+    private JButton addForum = new JButton(new ImageIcon("images\\drop_down.png"));
 
-    public MainFrame(User user) {
-        super("微校");
-
+    public MainFrame() {
         backPic.setBounds(0, 0, 450, 920);
         mainPanel = (JPanel) this.getContentPane();
         mainPanel.setOpaque(false);
         mainPanel.setLayout(null);
 
-        FrameManager.self = user;
-        this.user = user;
+        user = FrameManager.self;
+        this.user = FrameManager.self;
         ImageIcon portrait = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
         portrait.setImage(portrait.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
         portraitLabel = new JLabel(portrait);
@@ -85,17 +91,16 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         signatureLabel.setBounds(130, 75, 190, 20);
         weatherPicLabel.setBounds(340, 15, 90, 90);
         functionPanel.setBounds(0, 156, 450, 724);
-        testButton.setBounds(0, 0, 10, 20);
         setMenuLabel();
         refresh();
 
-        mainPanel.add(testButton);
         mainPanel.add(portraitLabel);
         mainPanel.add(nicknameLabel);
         mainPanel.add(signatureLabel);
         mainPanel.add(weatherPicLabel);
         mainPanel.add(functionPanel);
 
+        this.setTitle("微校");
         this.getLayeredPane().setLayout(null);
         this.setResizable(false);
         this.getLayeredPane().add(backPic, new Integer(Integer.MIN_VALUE));
@@ -107,6 +112,7 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         ImageIcon win = new ImageIcon("images\\win.jpg");
         this.setIconImage(win.getImage());
         this.setVisible(true);
+        this.setDefaultCloseOperation(3);
 
         weatherPicLabel.setToolTipText("<html><body><p>" + weather[4] + "</p>" +
                 "<p>风 力： " + weather[3] + "</p>" +
@@ -116,12 +122,13 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         ToolTipManager.sharedInstance().setDismissDelay(10000);
         ToolTipManager.sharedInstance().setReshowDelay(1);
 
-        testButton.addActionListener(this);
+        addVoteButton.addActionListener(this);
+        addAnnButton.addActionListener(this);
 
         try {
-            new ReceiveThread().run();
-        } catch (IOException e) {
-            e.printStackTrace();
+            new ReceiveThread().start();
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
     }
 
@@ -143,7 +150,11 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         divisionLabel.getLocation().getX();
         divisionLabel.setForeground(qqStyleOrange);
         divisionLabel.setFont(new Font("黑体", 1, 45));
+        addForum.setBounds(75,121,24,24);
+        addForum.setBorder(null);
+        addForum.addActionListener(this);
 
+        mainPanel.add(addForum);
         mainPanel.add(chatLabel);
         mainPanel.add(voteLabel);
         mainPanel.add(annLabel);
@@ -483,6 +494,12 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         votePanel.setLayout(null);
         votePanel.setOpaque(false);
 
+        if (user.getIsManager() == 1) {
+            addVoteButton = setButton(addVoteButton);
+            addVoteButton.setBounds(160, 660, 120, 50);
+            votePanel.add(addVoteButton);
+        }
+
         return voteSize;
     }
 
@@ -505,6 +522,8 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
             JButton nextButton = setPageButton(1, "下一页", annSize);
             lastButton.setLocation(50, 600);
             nextButton.setLocation(280, 600);
+            announcementPanel.add(lastButton);
+            announcementPanel.add(nextButton);
 
             JLabel indexLabel = new JLabel((annPage + 1) + "/" + annSize);
             indexLabel.setFont(new Font("黑体", 0, 15));
@@ -514,22 +533,28 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
             textArea.setText(announcement.getContent());
             textArea.setFont(new Font("黑体", 1, 20));
             textArea.setForeground(Color.LIGHT_GRAY);
-            textArea.setLineWrap(true);
             textArea.setEditable(false);
+            textArea.setLineWrap(true);
             votePanel.add(textArea);
+
             JScrollPane jScrollPane = new JScrollPane(textArea);
             jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             jScrollPane.setBounds(0, 50, 450, 420);
-            announcementPanel.add(lastButton);
-            announcementPanel.add(nextButton);
+
             announcementPanel.add(indexLabel);
             announcementPanel.add(titleLabel);
             announcementPanel.add(jScrollPane);
         }
         announcementPanel.setBounds(0, 0, 450, 724);
-        announcementPanel.setLayout(null);
         announcementPanel.setOpaque(false);
+        announcementPanel.setLayout(null);
+
+        if (user.getIsManager() == 1) {
+            addAnnButton = setButton(addAnnButton);
+            addAnnButton.setBounds(160, 660, 120, 50);
+            announcementPanel.add(addAnnButton);
+        }
 
         return annSize;
     }
@@ -652,7 +677,13 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        functionCard.show(functionPanel, "聊天");
+        if (e.getSource() == addVoteButton) {
+            new VoteFrame(user);
+        } else if (e.getSource() == addAnnButton) {
+            new AnnFrame(user);
+        }else if(e.getSource() == addForum){
+            new AddForumFrame(user);
+        }
     }
 
     @Override
@@ -669,12 +700,16 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         double now = divisionLabel.getLocation().getX();
         if (text.equals("聊天")) {
             x = 23;
+            addForum.setVisible(true);
         } else if (text.equals("投票")) {
             x = 183;
+            addForum.setVisible(false);
         } else {
             x = 353;
+            addForum.setVisible(false);
         }
         divisionLabel.setLocation(x, 140);
+        refresh();
     }
 
     @Override
@@ -704,10 +739,39 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
     }
 
     private void refresh() {
+        FrameManager.self = GetData.getUser(user.getStuNo());
+        user =  FrameManager.self;
         chatPanel.removeAll();
         votePanel.removeAll();
         announcementPanel.removeAll();
         setFunctionPanel();
         chatCard.show(chatPanel, chatPage);
+    }
+
+    public static void sendLog(AdministratorLog al) {
+        try {
+            //字节数组输出流
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            ChatInfo chatInfo = null;
+            oos.writeObject(chatInfo);
+            byte[] b = bos.toByteArray();
+            DatagramSocket socket = new DatagramSocket();
+            InetAddress add = InetAddress.getByName("localhost");
+            DatagramPacket p = new DatagramPacket(b, 0, b.length, add, 9999);
+            //发送
+            socket.send(p);
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(al);
+            b = bos.toByteArray();
+            p = new DatagramPacket(b, 0, b.length, add, 9999);
+            //发送
+            socket.send(p);
+
+            socket.close();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
     }
 }

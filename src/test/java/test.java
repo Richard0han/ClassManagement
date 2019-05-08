@@ -1,10 +1,7 @@
 import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.FrameManager;
 import com.classmanagement.client.bean.User;
-import com.classmanagement.client.thread.ReceiveThread;
-import com.classmanagement.client.ui.ChatFrame;
-import com.classmanagement.client.ui.Login;
-import com.classmanagement.client.ui.MainFrame;
+import com.classmanagement.client.ui.*;
 
 import java.util.LinkedHashMap;
 
@@ -33,6 +30,7 @@ public class test {
         user.setPort(10001);
         user.setPortrait(2);
         user.setClassId(6);
+        user.setIsManager(1);
         user.setClassName("计软18.3");
         FrameManager.self = user;
         User classmate = new User();
@@ -52,14 +50,17 @@ public class test {
         chatInfo.setClassmate(classmate);
         FrameManager.whisperFrameManager = new LinkedHashMap<String, ChatFrame>();
         FrameManager.forumFrameManager = new LinkedHashMap<Integer, ChatFrame>();
+        FrameManager.drawFrameManager = new LinkedHashMap<String, GetDrawFrame>();
 //        ChatFrame chatFrame = ReceiveThread.findWin(chatInfo);
 //        String weather[] = GetWeather.getWeather(0);
 //        for (int i = 0; i < 5; i++) {
 //            System.out.println(weather[i]);
 //        }
 //        System.out.println();
-//        MainFrame mainUI = new MainFrame(user);
-        ReceiveThread.findWin(chatInfo);
+//        MainFrame mainUI = new MainFrame();
+//                new GetDrawFrame(user);
+//        ReceiveThread.findWin(chatInfo);
+        new AddForumFrame(user);
     }
 }
 

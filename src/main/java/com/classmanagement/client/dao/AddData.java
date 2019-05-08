@@ -62,8 +62,8 @@ public class AddData {
             preparedStatement.setString(7, user.getSex());
             preparedStatement.setInt(8, user.getIsManager());
             preparedStatement.setString(9, user.getClassName());
-            preparedStatement.setString(10,user.getNetAddress());
-            preparedStatement.setInt(11,user.getPort());
+            preparedStatement.setString(10, "127.0.0.1");
+            preparedStatement.setInt(11, 10007);
             preparedStatement.executeUpdate();
 
             DbHelper.close(preparedStatement, connection, resultSet);
@@ -85,7 +85,7 @@ public class AddData {
             preparedStatement.setInt(3, 0);
             preparedStatement.setInt(4, 0);
             preparedStatement.setInt(5, vote.getForumId());
-            preparedStatement.setString(6,"");
+            preparedStatement.setString(6, "");
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.executeQuery(sql2);
             if (resultSet.next()) {
@@ -103,7 +103,6 @@ public class AddData {
             int size = stuNoList.size();
             Random random = new Random();
             String stuNo = stuNoList.get(random.nextInt(size));
-
             addVoteHistory(stuNo, vote.getForumId(), vote.getId(), connection, preparedStatement);
 
             DbHelper.close(preparedStatement, connection, resultSet);
@@ -113,7 +112,6 @@ public class AddData {
             return false;
         }
     }
-
 
     public static boolean selectUserToVote(int forumId, int voteId) {
         try {
@@ -177,9 +175,11 @@ public class AddData {
         try {
             connection = DbHelper.getConnection();
             PreparedStatement ps = null;
-            String sql = "INSERT INTO announcement(title,content,forum_id) values(" + announcement.getTitle() + "," +
-                    announcement.getContent() + "," + announcement.getForumId() + ")";
+            String sql = "insert into announcement(title,content,forum_id) values(?,?,?)";
             ps = connection.prepareStatement(sql);
+            ps.setString(1, announcement.getTitle());
+            ps.setString(2, announcement.getContent());
+            ps.setInt(3, announcement.getForumId());
             ps.executeUpdate();
             return true;
         } catch (Exception e) {
@@ -188,7 +188,7 @@ public class AddData {
         }
     }
 
-    public static boolean addFile(File file){
+    public static boolean addFile(File file) {
         Connection connection;
         PreparedStatement preparedStatement = null;
         try {
@@ -196,16 +196,53 @@ public class AddData {
             String sql = "insert into file (file_name,url,forum_id,sender,recipient) values(?,?,?,?,?)";
             preparedStatement = connection.prepareStatement(sql);
             int i = 1;
-            preparedStatement.setString(i++,file.getName());
-            preparedStatement.setString(i++,file.getUrl());
-            preparedStatement.setInt(i++,file.getForumId());
-            preparedStatement.setString(i++,file.getSender());
-            preparedStatement.setString(i,file.getRecipient());
+            preparedStatement.setString(i++, file.getName());
+            preparedStatement.setString(i++, file.getUrl());
+            preparedStatement.setInt(i++, file.getForumId());
+            preparedStatement.setString(i++, file.getSender());
+            preparedStatement.setString(i, file.getRecipient());
             preparedStatement.executeUpdate();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static int addChat(String guiName) {
+        int key = 0;
+        try {
+            Connection connection = DbHelper.getConnection();
+            ResultSet resultSet = null;
+            PreparedStatement ps = null;
+
+            String sql = "insert into forum(name,is_class)values('" + guiName + "'," + 0 + ") ";
+            ps = connection.prepareStatement(sql);
+            ps.executeUpdate();
+            String sqll = "SELECT id FROM forum WHERE name='" + guiName + "'";
+            ps = connection.prepareStatement(sqll);
+            resultSet = ps.executeQuery();
+            resultSet.next();
+            key = resultSet.getInt(1);
+            DbHelper.close(ps, connection, resultSet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return key;
+    }
+
+    public static void addStudent(List<User> user, int id, String name) {
+        Connection connection = null;
+        for (int i = 0; i < user.size(); i++) {
+            try {
+                connection = DbHelper.getConnection();
+                String sql = "insert into forum_history(stu_no,forum_id,forum_name)values('" + user.get(i).getStuNo() + "'," + id + ",'" + name + "') ";
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ps.executeUpdate(sql);
+                DbHelper.close(ps,connection,null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

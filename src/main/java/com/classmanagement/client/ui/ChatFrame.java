@@ -4,9 +4,9 @@ import com.classmanagement.client.bean.ChatInfo;
 import com.classmanagement.client.bean.Forum;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.dao.GetData;
+import com.classmanagement.client.thread.ReceiveFileThread;
 import com.classmanagement.client.thread.SendFileThread;
 import com.classmanagement.client.utils.ChatTextPane;
-import jdk.nashorn.internal.objects.annotations.Function;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
@@ -14,6 +14,8 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.*;
 import java.net.*;
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
  * @date 2019.04
  */
 
-public class ChatFrame extends JFrame implements ActionListener {
+public class ChatFrame extends JFrame implements ActionListener, MouseListener {
     private int type;
     private ChatInfo chatInfo;
     private User self, classmate;
@@ -41,8 +43,8 @@ public class ChatFrame extends JFrame implements ActionListener {
     private JButton sendButton = new JButton("发送");
     private JButton cancelButton = new JButton("取消");
     private JButton sendFile = new JButton();
-    private JButton shakeWin = new JButton("震动");
-    private JButton addPic = new JButton("图片");
+    private JButton shakeWin = new JButton();
+    private JButton addPic = new JButton();
     private ByteArrayOutputStream bos;
     private ObjectOutputStream oos;
     private JLabel toHomeLabel = new JLabel("  资料");
@@ -50,6 +52,8 @@ public class ChatFrame extends JFrame implements ActionListener {
     private JPanel functionPanel = new JPanel();
     private JPanel filePanel = new JPanel();
     private CardLayout functionCard = new CardLayout();
+    private String functionPage = "资料";
+    private ChatTextPane tempInfoPane = new ChatTextPane();
 
     public ChatFrame(ChatInfo chatInfo) {
         this.chatInfo = chatInfo;
@@ -71,6 +75,7 @@ public class ChatFrame extends JFrame implements ActionListener {
         sendPane.setLayout(new GridLayout(1, 1));
         sendPane.setBackground(Color.WHITE);
         sendPane.setFont(font);
+        tempInfoPane.setFont(font);
         receivePanel = new JScrollPane(receivePane);
         receivePanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         receivePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -86,14 +91,25 @@ public class ChatFrame extends JFrame implements ActionListener {
         sendButton.setBackground(new Color(217, 135, 89));
         sendButton.setForeground(Color.WHITE);
         cancelButton.setBackground(Color.WHITE);
-        sendFile.setBounds(40, 355, 35, 35);
+        sendFile.setBounds(10, 355, 35, 35);
+        sendFile.setIcon(new ImageIcon("images\\assembly\\file.png"));
+        sendFile.setBackground(Color.WHITE);
+        sendFile.setBorder(null);
         backPanel.add(sendFile);
         shakeWin.setBounds(75, 355, 35, 35);
-        addPic.setBounds(110, 355, 35, 35);
+        shakeWin.setIcon(new ImageIcon("images\\assembly\\shake.png"));
+        shakeWin.setBackground(Color.WHITE);
+        shakeWin.setBorder(null);
+        addPic.setBounds(140, 355, 35, 35);
+        addPic.setIcon(new ImageIcon("images\\assembly\\pic.png"));
+        ;
+        addPic.setBackground(Color.WHITE);
+        addPic.setBorder(null);
         Color qqStyleOrange = new Color(190, 132, 99);
         toHomeLabel.setBounds(655, 0, 200, 30);
         toHomeLabel.setForeground(qqStyleOrange);
         toHomeLabel.setFont(new Font("幼圆", 1, 25));
+        toHomeLabel.addMouseListener(this);
         backPanel.add(toHomeLabel);
 
         backPanel.add(receivePanel);
@@ -131,10 +147,12 @@ public class ChatFrame extends JFrame implements ActionListener {
             classmate = chatInfo.getClassmate();
             imageIcon = new ImageIcon("images\\portrait\\" + classmate.getPortrait() + ".jpg");
             nicknameLabel = new JLabel(classmate.getNickname() + "(" + classmate.getName() + ")", JLabel.CENTER);
+            nicknameLabel.setToolTipText(classmate.getNickname() + "(" + classmate.getName() + ")");
             signatureLabel = new JLabel(classmate.getSignature(), JLabel.CENTER);
             signatureLabel.setFont(new Font("黑体", 0, 15));
             signatureLabel.setBounds(15, 180, 308, 50);
             signatureLabel.setForeground(Color.LIGHT_GRAY);
+            signatureLabel.setToolTipText(classmate.getSignature());
             infoPanel.add(signatureLabel);
             this.setTitle("正在和" + chatInfo.getClassmate().getNickname() + "(" + chatInfo.getClassmate().getName() + ")聊天");
         } else {
@@ -158,8 +176,11 @@ public class ChatFrame extends JFrame implements ActionListener {
         drawLabel.setFont(describe);
         historyLabel.setFont(describe);
         downloadLabel.setBounds(150, 280, 100, 40);
+        downloadLabel.addMouseListener(this);
         drawLabel.setBounds(150, 340, 100, 40);
+        drawLabel.addMouseListener(this);
         historyLabel.setBounds(150, 400, 100, 40);
+        historyLabel.addMouseListener(this);
 
         infoPanel.add(download);
         infoPanel.add(draw);
@@ -185,19 +206,24 @@ public class ChatFrame extends JFrame implements ActionListener {
             for (int i = 0; i < fileListSize; i++) {
                 file = fileList.get(i);
                 ImageIcon imageIcon = getFileImage(file.getName());
-                fileLabels[i] = new JLabel(file.getName(), imageIcon, JLabel.LEFT);
+                fileLabels[i] = new JLabel("<html><p url=\"" + file.getUrl() + "\">" + file.getName() + "</p></html>"
+                        , imageIcon, JLabel.LEFT);
                 fileLabels[i].setBounds(0, 50 * i, 325, 50);
                 fileLabels[i].setFont(font);
                 fileLabels[i].setToolTipText(file.getName());
+                fileLabels[i].addMouseListener(downloadFile());
                 filePanelAccessory.add(fileLabels[i]);
             }
             JScrollPane jScrollPane = new JScrollPane(filePanelAccessory);
             jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            jScrollPane.setBorder(null);
             jScrollPane.setBackground(Color.WHITE);
-            jScrollPane.setBounds(0, 0, 329, 565);
-
-
+            if (fileListSize < 12) {
+                jScrollPane.setBounds(0, 0, 329, 50 * fileListSize + 10);
+            } else {
+                jScrollPane.setBounds(0, 0, 329, 565);
+            }
             filePanel.add(jScrollPane);
         } else {
             JLabel notFind = new JLabel(new ImageIcon("images\\noFile.png"));
@@ -205,7 +231,55 @@ public class ChatFrame extends JFrame implements ActionListener {
             filePanel.add(notFind);
         }
         functionPanel.add(filePanel, "共享文件");
-        functionCard.show(functionPanel, "共享文件");
+    }
+
+    private MouseListener downloadFile() {
+        return new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                FontUIResource font = new FontUIResource("微软雅黑", 0, 20);
+                UIManager.put("OptionPane.buttonFont", font);
+                UIManager.put("OptionPane.messageFont", font);
+                int isDownload = JOptionPane.showConfirmDialog(null, "确认下载该文件吗?", "下载提示", JOptionPane.YES_NO_OPTION);
+                if (isDownload == JOptionPane.YES_OPTION) {
+                    try {
+                        JLabel jLabel = (JLabel) e.getSource();
+                        String text = jLabel.getText();
+                        String url = text.substring(text.indexOf("\"") + 1, text.indexOf(">", 7) - 1);
+                        String fileName = text.substring(text.indexOf(">", 8) + 1, text.indexOf("<", 8));
+                        Socket socket = new Socket("localhost", 8083);
+                        com.classmanagement.client.bean.File file = new com.classmanagement.client.bean.File();
+                        file.setUrl(url);
+                        file.setName(fileName);
+                        new ReceiveFileThread(socket, file).run();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
     }
 
     private ImageIcon getFileImage(String fileName) {
@@ -228,15 +302,16 @@ public class ChatFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        FontUIResource font = new FontUIResource("微软雅黑", 0, 20);
+        UIManager.put("OptionPane.buttonFont", font);
+        UIManager.put("OptionPane.messageFont", font);
         if (e.getSource() == sendButton) {
             StyledDocument doc = sendPane.getStyledDocument();
             chatInfo.setContent(doc);
+            chatInfo.setDraw(false);
             if (send(chatInfo)) {
                 append(doc, self);
             } else {
-                FontUIResource font = new FontUIResource("微软雅黑", 0, 20);
-                UIManager.put("OptionPane.buttonFont", font);
-                UIManager.put("OptionPane.messageFont", font);
                 JOptionPane.showMessageDialog(this, "服务器连接失败了，请重新发送", "提示", JOptionPane.ERROR_MESSAGE);
             }
             sendPane.setText("");
@@ -261,16 +336,23 @@ public class ChatFrame extends JFrame implements ActionListener {
                         file.setForumId(forum.getId());
                     }
                     try {
-                        Socket socket = new Socket("localhost", 8083);
-                        Thread thread = new SendFileThread(socket, file, f);
+                        Socket fileSocket = new Socket("localhost", 8083);
+                        Thread thread = new SendFileThread(fileSocket, file, f);
                         thread.run();
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
+                    tempInfoPane.setText("我发送了一个文件看来看看吧~");
+                    StyledDocument doc = tempInfoPane.getStyledDocument();
+                    chatInfo.setContent(doc);
+                    chatInfo.setDraw(false);
+                    if (send(chatInfo)) {
+                        append(doc, self);
+                    }
                 }
             }
         } else if (e.getSource() == shakeWin) {
-            shake();
+            shake(0);
         } else if (e.getSource() == addPic) {
             FileDialog f = new FileDialog(this, "添加图片");
             f.setIconImage(new ImageIcon("images\\win.jpg").getImage());
@@ -309,41 +391,54 @@ public class ChatFrame extends JFrame implements ActionListener {
     }
 
     public void append(StyledDocument content, User user) {
-        ImageIcon imageIcon = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
-        imageIcon.setImage(imageIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
-        Document receiveMeg = receivePane.getStyledDocument();
-        receivePane.setCaretPosition(receiveMeg.getLength());
-        receivePane.insertIcon(imageIcon);
-        SimpleAttributeSet as = new SimpleAttributeSet();
-        StyleConstants.setFontSize(as, 24);
-        try {
-            receiveMeg.insertString(receiveMeg.getLength(), user.getNickname() + "(" + user.getName() + ")" + "\n", as);
-            int end = 0;
-            while (end < content.getLength()) {
-                Element e0 = content.getCharacterElement(end);
-
-                SimpleAttributeSet asl = new SimpleAttributeSet();
-                StyleConstants.setForeground(asl, StyleConstants.getForeground(e0.getAttributes()));
-                StyleConstants.setFontSize(asl, StyleConstants.getFontSize(e0.getAttributes()));
-                StyleConstants.setFontFamily(asl, StyleConstants.getFontFamily(e0.getAttributes()));
-                String text = e0.getDocument().getText(end, e0.getEndOffset() - end);
-
-                if ("icon".equals(e0.getName())) {
-                    receiveMeg.insertString(receiveMeg.getLength(), text, e0.getAttributes());
-                } else {
-                    receiveMeg.insertString(receiveMeg.getLength(), text, asl);
-                }
-
-                end = e0.getEndOffset();
-            }
-            receiveMeg.insertString(receiveMeg.getLength(), "\n\n", as);
+        if (content != null) {
+            ImageIcon imageIcon = new ImageIcon("images\\portrait\\" + user.getPortrait() + ".jpg");
+            imageIcon.setImage(imageIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+            Document receiveMeg = receivePane.getStyledDocument();
             receivePane.setCaretPosition(receiveMeg.getLength());
-        } catch (BadLocationException ex) {
-            ex.printStackTrace();
+            receivePane.insertIcon(imageIcon);
+            SimpleAttributeSet as = new SimpleAttributeSet();
+            StyleConstants.setFontSize(as, 24);
+            try {
+                receiveMeg.insertString(receiveMeg.getLength(), user.getNickname() + "(" + user.getName() + ")" + "\n", as);
+                int end = 0;
+                while (end < content.getLength()) {
+                    Element e0 = content.getCharacterElement(end);
+
+                    SimpleAttributeSet asl = new SimpleAttributeSet();
+                    StyleConstants.setForeground(asl, StyleConstants.getForeground(e0.getAttributes()));
+                    StyleConstants.setFontSize(asl, StyleConstants.getFontSize(e0.getAttributes()));
+                    StyleConstants.setFontFamily(asl, StyleConstants.getFontFamily(e0.getAttributes()));
+                    String text = e0.getDocument().getText(end, e0.getEndOffset() - end);
+                    if ("icon".equals(e0.getName())) {
+                        receiveMeg.insertString(receiveMeg.getLength(), text, e0.getAttributes());
+                    } else {
+                        receiveMeg.insertString(receiveMeg.getLength(), text, asl);
+                    }
+
+                    end = e0.getEndOffset();
+
+                }
+                receiveMeg.insertString(receiveMeg.getLength(), "\n\n", as);
+                receivePane.setCaretPosition(receiveMeg.getLength());
+                filePanel.removeAll();
+                setFilePanel();
+                functionCard.show(functionPanel, functionPage);
+            } catch (BadLocationException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
-    public void shake() {
+    public void shake(int type) {
+        if (type == 0) {
+            tempInfoPane.setText("[窗口抖动]");
+            StyledDocument document = tempInfoPane.getStyledDocument();
+            chatInfo.setContent(document);
+            chatInfo.setDraw(false);
+            send(chatInfo);
+            append(document,self);
+        }
         Point p = this.getLocationOnScreen();
         int times = 10;
         shakeWin.setEnabled(false);
@@ -365,5 +460,46 @@ public class ChatFrame extends JFrame implements ActionListener {
             e1.printStackTrace();
         }
         shakeWin.setEnabled(true);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == toHomeLabel) {
+            functionCard.show(functionPanel, "资料");
+            toHomeLabel.setText("  资料");
+            functionPage = "资料";
+        } else if (e.getSource() == downloadLabel) {
+            functionCard.show(functionPanel, "共享文件");
+            toHomeLabel.setText("< 共享文件");
+            functionPage = "共享文件";
+        } else if (e.getSource() == drawLabel) {
+            chatInfo.setContent(null);
+            chatInfo.setDraw(true);
+            try {
+                new ShareDrawFrame(chatInfo);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

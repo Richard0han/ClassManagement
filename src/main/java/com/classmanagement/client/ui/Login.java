@@ -1,6 +1,6 @@
 package com.classmanagement.client.ui;
 
-import com.classmanagement.client.bean.User;
+import com.classmanagement.client.bean.FrameManager;
 import com.classmanagement.client.dao.GetData;
 import com.classmanagement.client.dao.IsFirstLogin;
 
@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.LinkedHashMap;
 
 
 import static com.classmanagement.client.utils.LoginVerification.simulateLogin;
@@ -20,39 +21,26 @@ import static com.classmanagement.client.utils.LoginVerification.simulateLogin;
  **/
 public class Login extends JFrame implements ActionListener {
     private JButton confirm;
-    private JButton cancel;
     private String userName;
     private String pwd;
     private String cookie;
     private JTextField stuNoField;
     private JPasswordField passwordField;
+    private JPanel back;
 
     public Login() {
-        super("登录页面");
+        super("登录微校");
 
-        this.getContentPane().setLayout(null);
+        back = (JPanel) this.getContentPane();
+        back.setLayout(null);
 
-        JLabel stuNoLabel = new JLabel("学号");
-        JLabel pwdLabel = new JLabel("密码");
+        confirm = new JButton("Sign up >");
+        confirm.setBounds(489, 332, 80, 25);
+        confirm.setForeground(Color.WHITE);
+        confirm.setBorder(null);
+        confirm.setBackground(new Color(136, 202, 201));
+        confirm.setOpaque(true);
 
-        confirm = new JButton("登录");
-        cancel = new JButton("退出");
-        stuNoLabel.setBounds(120, 140, 200, 50);
-        pwdLabel.setBounds(120, 190, 200, 50);
-        confirm.setBounds(80, 280, 150, 50);
-        cancel.setBounds(330, 280, 150, 50);
-        stuNoLabel.setForeground(Color.gray);
-        pwdLabel.setForeground(Color.gray);
-        confirm.setForeground(Color.gray);
-        cancel.setForeground(Color.gray);
-        confirm.setBackground(Color.white);
-        cancel.setBackground(Color.white);
-
-        ImageIcon headPicture = new ImageIcon("images\\portrait\\0.jpg");
-        headPicture.setImage(headPicture.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
-        JLabel headLabel = new JLabel();
-        headLabel.setIcon(headPicture);
-        headLabel.setBounds(250, 40,100, 100);
         ImageIcon images = new ImageIcon("images\\background.png");
         JLabel logoLabel = new JLabel(images);
         this.setIconImage(new ImageIcon("images\\win.jpg").getImage());
@@ -60,31 +48,27 @@ public class Login extends JFrame implements ActionListener {
 
         stuNoField = new JTextField("", 20);
         passwordField = new JPasswordField("", 20);
-        stuNoField.setBounds(190, 150, 250, 40);
-        passwordField.setBounds(190, 200, 250, 40);
+        stuNoField.setBounds(440, 175, 190, 30);
+        passwordField.setBounds(440, 242, 190, 30);
+        stuNoField.setBorder(null);
+        passwordField.setBorder(null);
 
-        Font fm = new Font(" 黑体", Font.BOLD, 20);
-        Font mf = new Font(" 黑体", Font.PLAIN, 20);
-        stuNoLabel.setFont(fm);
-        pwdLabel.setFont(fm);
+        Font fm = new Font("黑体", Font.BOLD, 20);
+        Font mf = new Font("黑体", 0, 10);
         stuNoField.setFont(fm);
         confirm.setFont(mf);
-        cancel.setFont(mf);
+        back.add(confirm);
+        back.add(stuNoField);
+        back.add(passwordField);
+        back.add(logoLabel);
 
-        this.add(stuNoLabel);
-        this.add(pwdLabel);
-        this.add(confirm);
-        this.add(stuNoField);
-        this.add(passwordField);
-        this.add(cancel);
-        this.add(headLabel);
-        this.add(logoLabel);
 
-        this.setSize(images.getIconWidth(),images.getIconHeight());
+        this.getLayeredPane().setLayout(null);
+        this.setLayout(null);
+        this.setSize(714, 525);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
-        cancel.addActionListener(this);
         confirm.addActionListener(this);
     }
 
@@ -111,20 +95,21 @@ public class Login extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(null, "账号或密码输入错误！", "提示", JOptionPane.ERROR_MESSAGE);
                     } else {
                         if (IsFirstLogin.isFirstLogin(userName)) {
+                            this.dispose();
                             new BasicData(cookie);
-                            this.dispose();
                         } else {
-                            User user = GetData.getUser(userName);
-                            new MainFrame(user);
+                            FrameManager.self = GetData.getUser(userName);
                             this.dispose();
+                            FrameManager.whisperFrameManager = new LinkedHashMap<String, ChatFrame>();
+                            FrameManager.forumFrameManager = new LinkedHashMap<Integer, ChatFrame>();
+                            FrameManager.drawFrameManager = new LinkedHashMap<String, GetDrawFrame>();
+                            FrameManager.mainFrame = new MainFrame();
                         }
                     }
                 }
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-        } else if (e.getSource() == cancel) {
-            System.exit(0);
         }
     }
 }

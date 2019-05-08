@@ -20,6 +20,33 @@ public class ChatInfo implements Serializable {
     private User classmate;
     private Forum forum;
     private StyledDocument content;
+    private boolean isDraw = false;
+    private int x;
+    private int y;
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public boolean isDraw() {
+        return isDraw;
+    }
+
+    public void setDraw(boolean draw) {
+        isDraw = draw;
+    }
 
     public StyledDocument getContent() {
         return content;

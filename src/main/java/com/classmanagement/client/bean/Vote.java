@@ -1,5 +1,7 @@
 package com.classmanagement.client.bean;
 
+import java.io.Serializable;
+
 /**
  * ClassManager
  *
@@ -8,7 +10,7 @@ package com.classmanagement.client.bean;
  * @date 2019.03
  */
 
-public class Vote {
+public class Vote implements Serializable {
     private int id;
     private String title;
     private String content;
@@ -19,6 +21,15 @@ public class Vote {
     private String stuNo;
     private int status;
     private int option;
+    private String sender;
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
 
     public int getOption() {
         return option;

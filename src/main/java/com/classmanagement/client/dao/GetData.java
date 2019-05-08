@@ -43,7 +43,6 @@ public class GetData {
                 user.setPort(resultSet.getInt("port"));
                 user.setNetAddress(resultSet.getString("net_address"));
             }
-
             user.setStuNo(stuNo);
         } catch (Exception e) {
             user = null;
@@ -69,6 +68,7 @@ public class GetData {
                 forum = new Forum();
                 forum.setName(resultSet.getString("name"));
                 forum.setIsClass(resultSet.getInt("is_class"));
+                forum.setId(id);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,7 +128,7 @@ public class GetData {
             while (resultSet.next()) {
                 user = new User();
                 user.setStuNo(resultSet.getString("stu_no"));
-                if ((!user.getStuNo().equals(self.getStuNo())) && (self != null)) {
+                if ((self == null) || (!user.getStuNo().equals(self.getStuNo()))) {
                     user.setNickname(resultSet.getString("nickname"));
                     user.setName(resultSet.getString("name"));
                     user.setSignature(resultSet.getString("signature"));
@@ -243,6 +243,7 @@ public class GetData {
                 announcement.setForumId(classId);
                 list.add(announcement);
             }
+            Collections.reverse(list);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {

@@ -2,6 +2,8 @@ package com.classmanagement.client.thread;
 
 import com.classmanagement.client.utils.JsonParser;
 
+import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.io.*;
 import java.net.Socket;
 
@@ -23,7 +25,7 @@ public class SendFileThread extends Thread {
         this.socket = socket;
         this.file = file;
         this.f = f;
-        fileJson = JsonParser.FileToJson(file) + "\n";
+        fileJson = JsonParser.FileToJson(file);
     }
 
     @Override
@@ -48,6 +50,11 @@ public class SendFileThread extends Thread {
             //关闭文件流
             fis.close();
             out.flush();
+            FontUIResource font = new FontUIResource("微软雅黑", 0, 20);
+            UIManager.put("OptionPane.buttonFont", font);
+            UIManager.put("OptionPane.messageFont", font);
+            JOptionPane.showMessageDialog(null, "共享成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

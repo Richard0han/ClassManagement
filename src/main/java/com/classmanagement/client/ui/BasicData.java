@@ -1,8 +1,10 @@
 package com.classmanagement.client.ui;
 
+import com.classmanagement.client.bean.FrameManager;
 import com.classmanagement.client.bean.User;
 import com.classmanagement.client.dao.AddData;
 import com.classmanagement.client.dao.GetData;
+import com.classmanagement.client.thread.ReceiveThread;
 import com.classmanagement.client.utils.JsonParser;
 
 import javax.swing.*;
@@ -10,6 +12,8 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 
 /**
  * ClassManager
@@ -83,6 +87,8 @@ public class BasicData extends JFrame implements ActionListener {
         //设置大小位置
         nicknameLabel.setBounds(15, 0, 170, 50);
         nicknameText.setBounds(100, 8, 280, 35);
+        basicDataPanel.add(nicknameLabel);
+        basicDataPanel.add(nicknameText);
         signatureLabel.setBounds(15, 50, 170, 50);
         signatureText.setBounds(100, 58, 280, 75);
         dividingLine.setBounds(15, 120, 500, 50);
@@ -90,23 +96,23 @@ public class BasicData extends JFrame implements ActionListener {
         dataLabel.setBounds(25, 200, 400, 170);
         portraitLabel.setBounds(15, 380, 170, 50);
         setPortrait.setBounds(170, 410, 140, 120);
+        basicDataPanel.add(portraitLabel);
+        basicDataPanel.add(setPortrait);
         confirmButton.setBounds(205, 563, 80, 30);
         cancelButton.setBounds(305, 563, 80, 30);
         confirmButton.setBackground(Color.WHITE);
         cancelButton.setBackground(Color.WHITE);
+        basicDataPanel.add(confirmButton);
+        basicDataPanel.add(cancelButton);
 
-        //添加控件
-        basicDataPanel.add(nicknameLabel);
-        basicDataPanel.add(nicknameText);
+
         basicDataPanel.add(signatureLabel);
         basicDataPanel.add(signatureText);
         basicDataPanel.add(dividingLine);
         basicDataPanel.add(basicData);
         basicDataPanel.add(dataLabel);
-        basicDataPanel.add(portraitLabel);
-        basicDataPanel.add(setPortrait);
-        basicDataPanel.add(confirmButton);
-        basicDataPanel.add(cancelButton);
+
+
 
         this.getLayeredPane().setLayout(null);
         this.setResizable(false);
@@ -158,9 +164,12 @@ public class BasicData extends JFrame implements ActionListener {
                 user.setPortrait(setPortrait.getSelectedIndex());
                 if (AddData.addUser(user)) {
                     JOptionPane.showMessageDialog(this, "注册成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
-                    user = GetData.getUser(user.getStuNo());
-                    MainFrame mainFrame = new MainFrame(user);
+                    FrameManager.self = GetData.getUser(user.getStuNo());
                     this.dispose();
+                    FrameManager.forumFrameManager = new LinkedHashMap<Integer, ChatFrame>();
+                    FrameManager.whisperFrameManager = new LinkedHashMap<String, ChatFrame>();
+                    FrameManager.drawFrameManager = new LinkedHashMap<String, GetDrawFrame>();
+                    MainFrame mainFrame = new MainFrame();
                 }
             }
         } else if (e.getSource() == cancelButton) {
