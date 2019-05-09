@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
 
 /**
  * ClassManagement
@@ -31,8 +29,6 @@ public class GetDrawFrame extends JFrame{
         this.setLocationRelativeTo(null);
         this.setVisible(true);
         g = this.getGraphics();
-        //设置鼠标监听器
-        //在设置监听器的同时启动监听器对象的线程
     }
 
     public void draw(int x, int y) {

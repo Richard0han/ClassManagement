@@ -46,13 +46,13 @@ public class BasicData extends JFrame implements ActionListener {
 
         user = JsonParser.getUser(cookie);
 
-        dataLabel = new JLabel("<html><body><p> 姓 名 &nbsp&nbsp&nbsp" + user.getName() + "</p>" +
+        dataLabel = new JLabel("<html><body><p> 姓 名 " + user.getName() + "</p>" +
                 "<p></p>" +
-                "<p> 性 别 &nbsp&nbsp&nbsp" + user.getSex() + "</p>" +
+                "<p> 性 别 " + user.getSex() + "</p>" +
                 "<p></p>" +
-                "<p> 班 级 &nbsp&nbsp&nbsp" + user.getClassName() + "</p>" +
+                "<p> 班 级 " + user.getClassName() + "</p>" +
                 "<p></p>" +
-                "<p> 学 号 &nbsp " + user.getStuNo() + "</p>");
+                "<p> 学 号 " + user.getStuNo() + "</p>");
         backPic.setBounds(0, 0, background.getIconWidth(), background.getIconHeight());
         basicDataPanel = (JPanel) this.getContentPane();
         basicDataPanel.setOpaque(false);

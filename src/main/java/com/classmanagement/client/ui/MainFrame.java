@@ -150,7 +150,7 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         divisionLabel.getLocation().getX();
         divisionLabel.setForeground(qqStyleOrange);
         divisionLabel.setFont(new Font("黑体", 1, 45));
-        addForum.setBounds(75,121,24,24);
+        addForum.setBounds(75, 121, 24, 24);
         addForum.setBorder(null);
         addForum.addActionListener(this);
 
@@ -182,7 +182,7 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
     }
 
     /**
-     * description setWeatherPic
+     * description 通过解析设置图片，其中isDay是一个判断是否为白天的函数
      *
      * @param weatherPicLabel
      * @param weather
@@ -595,6 +595,14 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         opposeButton.addActionListener(voteActionListener());
     }
 
+    /**
+     * description 设置下一页，其中votePage,annPage用于记录当前页
+     *
+     * @param sort [0为投票页面，1为公告页面]
+     * @param name
+     * @param size
+     * @return javax.swing.JButton
+     */
     private JButton setPageButton(final int sort, String name, int size) {
         final JButton jButton = new JButton(name);
         jButton.setFont(new Font("黑体", 1, 20));
@@ -681,7 +689,7 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
             new VoteFrame(user);
         } else if (e.getSource() == addAnnButton) {
             new AnnFrame(user);
-        }else if(e.getSource() == addForum){
+        } else if (e.getSource() == addForum) {
             new AddForumFrame(user);
         }
     }
@@ -738,9 +746,15 @@ public class MainFrame extends JFrame implements ActionListener, MouseListener {
         }
     }
 
+    /**
+     * description 主面板的刷新
+     *
+     * @param
+     * @return void
+     */
     private void refresh() {
         FrameManager.self = GetData.getUser(user.getStuNo());
-        user =  FrameManager.self;
+        user = FrameManager.self;
         chatPanel.removeAll();
         votePanel.removeAll();
         announcementPanel.removeAll();

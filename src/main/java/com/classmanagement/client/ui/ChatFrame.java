@@ -233,6 +233,12 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
         functionPanel.add(filePanel, "共享文件");
     }
 
+    /**
+     * description 点击下载该文件的MouseListener
+     *
+     * @param
+     * @return java.awt.event.MouseListener
+     */
     private MouseListener downloadFile() {
         return new MouseListener() {
             @Override
@@ -361,6 +367,12 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
         }
     }
 
+    /** 
+     * description 发送给服务器 
+     *
+     * @param chatInfo 
+     * @return boolean 
+     */
     private boolean send(ChatInfo chatInfo) {
         try {
             //字节数组输出流
@@ -399,6 +411,7 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
             receivePane.insertIcon(imageIcon);
             SimpleAttributeSet as = new SimpleAttributeSet();
             StyleConstants.setFontSize(as, 24);
+            int lineFeed = 0;
             try {
                 receiveMeg.insertString(receiveMeg.getLength(), user.getNickname() + "(" + user.getName() + ")" + "\n", as);
                 int end = 0;
@@ -410,6 +423,9 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
                     StyleConstants.setFontSize(asl, StyleConstants.getFontSize(e0.getAttributes()));
                     StyleConstants.setFontFamily(asl, StyleConstants.getFontFamily(e0.getAttributes()));
                     String text = e0.getDocument().getText(end, e0.getEndOffset() - end);
+                    if (!(text.contains("[窗口抖动]") || text.contains("我发送了一个文件看来看看吧~\n"))) {
+                        lineFeed = 1;
+                    }
                     if ("icon".equals(e0.getName())) {
                         receiveMeg.insertString(receiveMeg.getLength(), text, e0.getAttributes());
                     } else {
@@ -419,7 +435,11 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
                     end = e0.getEndOffset();
 
                 }
-                receiveMeg.insertString(receiveMeg.getLength(), "\n\n", as);
+                String line = "\n";
+                if(lineFeed == 1){
+                    line += "\n";
+                }
+                receiveMeg.insertString(receiveMeg.getLength(), line, as);
                 receivePane.setCaretPosition(receiveMeg.getLength());
                 filePanel.removeAll();
                 setFilePanel();
@@ -437,7 +457,7 @@ public class ChatFrame extends JFrame implements ActionListener, MouseListener {
             chatInfo.setContent(document);
             chatInfo.setDraw(false);
             send(chatInfo);
-            append(document,self);
+            append(document, self);
         }
         Point p = this.getLocationOnScreen();
         int times = 10;

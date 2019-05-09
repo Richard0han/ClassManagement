@@ -51,8 +51,21 @@ public class AddData {
                 user.setClassId(resultSet.getInt("id"));
             }
 
-            String sql2 = "insert into user (stu_no,name,nickname,signature,portrait,class_id,sex,is_manager,class_name,net_address,port) values(?,?,?,?,?,?,?,?,?,?,?)";
-            preparedStatement = connection.prepareStatement(sql2);
+            int port = 10003;
+            for (int i = 0; i == 0;) {
+                String sql2 = "select * from user where port=" + port;
+                preparedStatement = connection.prepareStatement(sql2);
+                resultSet = preparedStatement.executeQuery();
+                if (!resultSet.next()) {
+                    i = 1;
+                }else {
+                    port++;
+                }
+            }
+
+
+            String sql3 = "insert into user (stu_no,name,nickname,signature,portrait,class_id,sex,is_manager,class_name,net_address,port) values(?,?,?,?,?,?,?,?,?,?,?)";
+            preparedStatement = connection.prepareStatement(sql3);
             preparedStatement.setString(1, user.getStuNo());
             preparedStatement.setString(2, user.getName());
             preparedStatement.setString(3, user.getNickname());
@@ -63,7 +76,7 @@ public class AddData {
             preparedStatement.setInt(8, user.getIsManager());
             preparedStatement.setString(9, user.getClassName());
             preparedStatement.setString(10, "127.0.0.1");
-            preparedStatement.setInt(11, 10007);
+            preparedStatement.setInt(11, port);
             preparedStatement.executeUpdate();
 
             DbHelper.close(preparedStatement, connection, resultSet);
@@ -239,7 +252,7 @@ public class AddData {
                 String sql = "insert into forum_history(stu_no,forum_id,forum_name)values('" + user.get(i).getStuNo() + "'," + id + ",'" + name + "') ";
                 PreparedStatement ps = connection.prepareStatement(sql);
                 ps.executeUpdate(sql);
-                DbHelper.close(ps,connection,null);
+                DbHelper.close(ps, connection, null);
             } catch (Exception e) {
                 e.printStackTrace();
             }

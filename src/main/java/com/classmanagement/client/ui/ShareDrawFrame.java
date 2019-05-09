@@ -81,7 +81,6 @@ public class ShareDrawFrame extends JFrame implements MouseMotionListener {
             oos.writeObject(chatInfo);
             //最终
 
-//            ByteArrayOutputStream bos; =
             byte[] b = bos.toByteArray();
             DatagramPacket p = new DatagramPacket(b, 0, b.length, add, chatInfo.getClassmate().getPort());
             //发送
