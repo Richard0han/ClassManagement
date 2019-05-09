@@ -43,7 +43,7 @@ public class test {
         classmate.setPort(10002);
         classmate.setPortrait(0);
         classmate.setClassName("计软18.3");
-
+        MainFrame mainUI = new MainFrame();
         ChatInfo chatInfo = new ChatInfo();
         chatInfo.setType(0);
         chatInfo.setSelf(user);
@@ -57,7 +57,7 @@ public class test {
 //            System.out.println(weather[i]);
 //        }
 //        System.out.println();
-//        MainFrame mainUI = new MainFrame();
+
 //                new GetDrawFrame(user);
 //        ReceiveThread.findWin(chatInfo);
         new AddForumFrame(user);

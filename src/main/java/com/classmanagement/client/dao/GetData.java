@@ -166,7 +166,6 @@ public class GetData {
             while (resultSet.next()) {
                 vote = new Vote();
                 vote.setId(resultSet.getInt("vote_id"));
-                vote.setOption(resultSet.getInt("option"));
                 vote.setStatus(resultSet.getInt("status"));
                 String sql0 = "select * from vote where id=" + vote.getId();
                 preparedStatement = connection.prepareStatement(sql0);
